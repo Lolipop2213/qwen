@@ -32,7 +32,7 @@
         "short_score": 3.0,
         "total_conditions": 6.0
       },
-      "tp1_reached": false,
+      "tp1_reached": true,
       "tp2_reached": false,
       "tp3_reached": false,
       "sl_reached": false
@@ -69,7 +69,7 @@
         "short_score": 3.0,
         "total_conditions": 6.0
       },
-      "tp1_reached": false,
+      "tp1_reached": true,
       "tp2_reached": false,
       "tp3_reached": false,
       "sl_reached": false
@@ -106,7 +106,7 @@
         "short_score": 3.0,
         "total_conditions": 6.0
       },
-      "tp1_reached": false,
+      "tp1_reached": true,
       "tp2_reached": false,
       "tp3_reached": false,
       "sl_reached": false
@@ -143,7 +143,7 @@
         "short_score": 3.0,
         "total_conditions": 6.0
       },
-      "tp1_reached": false,
+      "tp1_reached": true,
       "tp2_reached": false,
       "tp3_reached": false,
       "sl_reached": false
@@ -180,7 +180,7 @@
         "short_score": 3.0,
         "total_conditions": 6.0
       },
-      "tp1_reached": false,
+      "tp1_reached": true,
       "tp2_reached": false,
       "tp3_reached": false,
       "sl_reached": false
@@ -217,7 +217,7 @@
         "short_score": 3.0,
         "total_conditions": 6.0
       },
-      "tp1_reached": false,
+      "tp1_reached": true,
       "tp2_reached": false,
       "tp3_reached": false,
       "sl_reached": false
@@ -254,7 +254,7 @@
         "short_score": 3.0,
         "total_conditions": 6.0
       },
-      "tp1_reached": false,
+      "tp1_reached": true,
       "tp2_reached": false,
       "tp3_reached": false,
       "sl_reached": false
@@ -291,7 +291,7 @@
         "short_score": 3.0,
         "total_conditions": 6.0
       },
-      "tp1_reached": false,
+      "tp1_reached": true,
       "tp2_reached": false,
       "tp3_reached": false,
       "sl_reached": false
@@ -328,7 +328,7 @@
         "short_score": 2.0,
         "total_conditions": 6.0
       },
-      "tp1_reached": false,
+      "tp1_reached": true,
       "tp2_reached": false,
       "tp3_reached": false,
       "sl_reached": false
@@ -365,8 +365,8 @@
         "short_score": 3.0,
         "total_conditions": 6.0
       },
-      "tp1_reached": false,
-      "tp2_reached": false,
+      "tp1_reached": true,
+      "tp2_reached": true,
       "tp3_reached": false,
       "sl_reached": false
     },
@@ -439,7 +439,7 @@
         "short_score": 3.0,
         "total_conditions": 6.0
       },
-      "tp1_reached": false,
+      "tp1_reached": true,
       "tp2_reached": false,
       "tp3_reached": false,
       "sl_reached": false
@@ -513,7 +513,7 @@
         "short_score": 3.0,
         "total_conditions": 6.0
       },
-      "tp1_reached": false,
+      "tp1_reached": true,
       "tp2_reached": false,
       "tp3_reached": false,
       "sl_reached": false
@@ -661,8 +661,8 @@
         "short_score": 3.0,
         "total_conditions": 6.0
       },
-      "tp1_reached": false,
-      "tp2_reached": false,
+      "tp1_reached": true,
+      "tp2_reached": true,
       "tp3_reached": false,
       "sl_reached": false
     },
@@ -698,8 +698,8 @@
         "short_score": 3.0,
         "total_conditions": 6.0
       },
-      "tp1_reached": false,
-      "tp2_reached": false,
+      "tp1_reached": true,
+      "tp2_reached": true,
       "tp3_reached": false,
       "sl_reached": false
     },
@@ -740,43 +740,6 @@
       "tp3_reached": false,
       "sl_reached": false
     },
-    "HBAR/USDT": {
-      "symbol": "HBAR/USDT",
-      "signal_type": "LONG",
-      "entry_price": 0.25582,
-      "tp1": 0.26278623,
-      "tp2": 0.26743039,
-      "tp3": 0.27323558,
-      "sl": 0.25117585,
-      "confidence": 66.67,
-      "risk_reward_ratio": 3.67,
-      "potential_upside": 6.81,
-      "formation_time": "~2 часов",
-      "signal_strength": 5.0,
-      "timeframe_analysis": {
-        "5m_momentum": 0.005582,
-        "15m_momentum": 0.005661,
-        "1h_momentum": -0.005404
-      },
-      "technical_analysis": {
-        "rsi": 36.39,
-        "stoch_k": 27.72,
-        "macd": -0.00292969,
-        "bb_position": 0.12,
-        "volume_ratio": 0.74,
-        "potential_multiplier": 0.85
-      },
-      "timestamp": "2025-07-30T13:42:00.275008",
-      "conditions_met": {
-        "long_score": 4.0,
-        "short_score": 2.0,
-        "total_conditions": 6.0
-      },
-      "tp1_reached": false,
-      "tp2_reached": false,
-      "tp3_reached": false,
-      "sl_reached": false
-    },
     "NEAR/USDT": {
       "symbol": "NEAR/USDT",
       "signal_type": "LONG",
@@ -809,7 +772,7 @@
         "short_score": 3.0,
         "total_conditions": 6.0
       },
-      "tp1_reached": false,
+      "tp1_reached": true,
       "tp2_reached": false,
       "tp3_reached": false,
       "sl_reached": false
@@ -846,8 +809,8 @@
         "short_score": 3.0,
         "total_conditions": 6.0
       },
-      "tp1_reached": false,
-      "tp2_reached": false,
+      "tp1_reached": true,
+      "tp2_reached": true,
       "tp3_reached": false,
       "sl_reached": false
     },
@@ -883,7 +846,7 @@
         "short_score": 3.0,
         "total_conditions": 6.0
       },
-      "tp1_reached": false,
+      "tp1_reached": true,
       "tp2_reached": false,
       "tp3_reached": false,
       "sl_reached": false
@@ -920,7 +883,7 @@
         "short_score": 3.0,
         "total_conditions": 6.0
       },
-      "tp1_reached": false,
+      "tp1_reached": true,
       "tp2_reached": false,
       "tp3_reached": false,
       "sl_reached": false
@@ -957,7 +920,7 @@
         "short_score": 3.0,
         "total_conditions": 6.0
       },
-      "tp1_reached": false,
+      "tp1_reached": true,
       "tp2_reached": false,
       "tp3_reached": false,
       "sl_reached": false
@@ -994,7 +957,7 @@
         "short_score": 2.0,
         "total_conditions": 6.0
       },
-      "tp1_reached": false,
+      "tp1_reached": true,
       "tp2_reached": false,
       "tp3_reached": false,
       "sl_reached": false
@@ -1031,8 +994,8 @@
         "short_score": 3.0,
         "total_conditions": 6.0
       },
-      "tp1_reached": false,
-      "tp2_reached": false,
+      "tp1_reached": true,
+      "tp2_reached": true,
       "tp3_reached": false,
       "sl_reached": false
     },
@@ -1068,7 +1031,7 @@
         "short_score": 3.0,
         "total_conditions": 6.0
       },
-      "tp1_reached": false,
+      "tp1_reached": true,
       "tp2_reached": false,
       "tp3_reached": false,
       "sl_reached": false
@@ -1105,7 +1068,7 @@
         "short_score": 3.0,
         "total_conditions": 6.0
       },
-      "tp1_reached": false,
+      "tp1_reached": true,
       "tp2_reached": false,
       "tp3_reached": false,
       "sl_reached": false
@@ -1142,7 +1105,7 @@
         "short_score": 3.0,
         "total_conditions": 6.0
       },
-      "tp1_reached": false,
+      "tp1_reached": true,
       "tp2_reached": false,
       "tp3_reached": false,
       "sl_reached": false
@@ -1179,7 +1142,7 @@
         "short_score": 3.0,
         "total_conditions": 6.0
       },
-      "tp1_reached": false,
+      "tp1_reached": true,
       "tp2_reached": false,
       "tp3_reached": false,
       "sl_reached": false
@@ -1216,7 +1179,7 @@
         "short_score": 2.0,
         "total_conditions": 6.0
       },
-      "tp1_reached": false,
+      "tp1_reached": true,
       "tp2_reached": false,
       "tp3_reached": false,
       "sl_reached": false
@@ -1251,6 +1214,43 @@
       "conditions_met": {
         "long_score": 5.0,
         "short_score": 3.0,
+        "total_conditions": 6.0
+      },
+      "tp1_reached": true,
+      "tp2_reached": false,
+      "tp3_reached": false,
+      "sl_reached": false
+    },
+    "HBAR/USDT": {
+      "symbol": "HBAR/USDT",
+      "signal_type": "SHORT",
+      "entry_price": 0.274,
+      "tp1": 0.26486893,
+      "tp2": 0.2586598,
+      "tp3": 0.24989397,
+      "sl": 0.27936569,
+      "confidence": 66.67,
+      "risk_reward_ratio": 4.41,
+      "potential_upside": 8.8,
+      "formation_time": "~1 часов",
+      "signal_strength": 4.0,
+      "timeframe_analysis": {
+        "5m_momentum": 0.001975,
+        "15m_momentum": 0.005431,
+        "1h_momentum": 0.011219
+      },
+      "technical_analysis": {
+        "rsi": 68.84,
+        "stoch_k": 96.42,
+        "macd": 0.00440229,
+        "bb_position": 0.94,
+        "volume_ratio": 0.61,
+        "potential_multiplier": 1.05
+      },
+      "timestamp": "2025-07-31T07:48:08.993857",
+      "conditions_met": {
+        "long_score": 2.0,
+        "short_score": 4.0,
         "total_conditions": 6.0
       },
       "tp1_reached": false,
@@ -1991,6 +1991,39 @@
         "conditions_met": {
           "long_score": 4.0,
           "short_score": 2.0,
+          "total_conditions": 6.0
+        }
+      },
+      {
+        "symbol": "HBAR/USDT",
+        "signal_type": "SHORT",
+        "entry_price": 0.274,
+        "tp1": 0.26486893,
+        "tp2": 0.2586598,
+        "tp3": 0.24989397,
+        "sl": 0.27936569,
+        "confidence": 66.67,
+        "risk_reward_ratio": 4.41,
+        "potential_upside": 8.8,
+        "formation_time": "~1 часов",
+        "signal_strength": 4.0,
+        "timeframe_analysis": {
+          "5m_momentum": 0.001975,
+          "15m_momentum": 0.005431,
+          "1h_momentum": 0.011219
+        },
+        "technical_analysis": {
+          "rsi": 68.84,
+          "stoch_k": 96.42,
+          "macd": 0.00440229,
+          "bb_position": 0.94,
+          "volume_ratio": 0.61,
+          "potential_multiplier": 1.05
+        },
+        "timestamp": "2025-07-31T07:48:08.993857",
+        "conditions_met": {
+          "long_score": 2.0,
+          "short_score": 4.0,
           "total_conditions": 6.0
         }
       }
@@ -2927,12 +2960,26 @@
       "rr_ratio": 3.35,
       "potential_upside": 6.8,
       "signal_strength": 5.0
+    },
+    {
+      "timestamp": "2025-07-31T07:48:08.993857",
+      "symbol": "HBAR/USDT",
+      "signal_type": "SHORT",
+      "entry_price": 0.274,
+      "tp1": 0.26486893,
+      "tp2": 0.2586598,
+      "tp3": 0.24989397,
+      "sl": 0.27936569,
+      "confidence": 66.67,
+      "rr_ratio": 4.41,
+      "potential_upside": 8.8,
+      "signal_strength": 4.0
     }
   ],
   "analysis_stats": {
-    "total_analyzed": 1609.0,
-    "signals_generated": 34.0,
+    "total_analyzed": 3868.0,
+    "signals_generated": 35.0,
     "start_time": "2025-07-30T12:35:38.097202"
   },
-  "saved_at": "2025-07-30T14:02:43.157242"
+  "saved_at": "2025-07-31T08:21:03.739449"
 }

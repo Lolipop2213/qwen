@@ -475,12 +475,26 @@
       "rr_ratio": 3.35,
       "potential_upside": 6.8,
       "signal_strength": 5.0
+    },
+    {
+      "timestamp": "2025-07-31T07:48:08.993857",
+      "symbol": "HBAR/USDT",
+      "signal_type": "SHORT",
+      "entry_price": 0.274,
+      "tp1": 0.26486893,
+      "tp2": 0.2586598,
+      "tp3": 0.24989397,
+      "sl": 0.27936569,
+      "confidence": 66.67,
+      "rr_ratio": 4.41,
+      "potential_upside": 8.8,
+      "signal_strength": 4.0
     }
   ],
   "stats": {
-    "total_analyzed": 1609.0,
-    "signals_generated": 34.0,
+    "total_analyzed": 3868.0,
+    "signals_generated": 35.0,
     "start_time": "2025-07-30T12:35:38.097202"
   },
-  "generated_at": "2025-07-30T14:02:43.147804"
+  "generated_at": "2025-07-31T08:21:03.745017"
 }
