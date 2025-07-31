@@ -107,7 +107,7 @@
         "total_conditions": 6.0
       },
       "tp1_reached": true,
-      "tp2_reached": false,
+      "tp2_reached": true,
       "tp3_reached": false,
       "sl_reached": false
     },
@@ -550,7 +550,7 @@
         "short_score": 3.0,
         "total_conditions": 6.0
       },
-      "tp1_reached": false,
+      "tp1_reached": true,
       "tp2_reached": false,
       "tp3_reached": false,
       "sl_reached": false
@@ -847,7 +847,7 @@
         "total_conditions": 6.0
       },
       "tp1_reached": true,
-      "tp2_reached": false,
+      "tp2_reached": true,
       "tp3_reached": false,
       "sl_reached": false
     },
@@ -1106,7 +1106,7 @@
         "total_conditions": 6.0
       },
       "tp1_reached": true,
-      "tp2_reached": false,
+      "tp2_reached": true,
       "tp3_reached": false,
       "sl_reached": false
     },
@@ -1180,7 +1180,7 @@
         "total_conditions": 6.0
       },
       "tp1_reached": true,
-      "tp2_reached": false,
+      "tp2_reached": true,
       "tp3_reached": false,
       "sl_reached": false
     },
@@ -1217,7 +1217,7 @@
         "total_conditions": 6.0
       },
       "tp1_reached": true,
-      "tp2_reached": false,
+      "tp2_reached": true,
       "tp3_reached": false,
       "sl_reached": false
     },
@@ -2977,9 +2977,9 @@
     }
   ],
   "analysis_stats": {
-    "total_analyzed": 3902.0,
+    "total_analyzed": 8696.0,
     "signals_generated": 35.0,
     "start_time": "2025-07-30T12:35:38.097202"
   },
-  "saved_at": "2025-07-31T08:22:18.852337"
+  "saved_at": "2025-07-31T11:46:08.550717"
 }

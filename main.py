@@ -59,6 +59,8 @@ class FuturesCryptoTradingBot:
             'start_time': datetime.now().isoformat()
         }
         self.signal_stats = {}  # Статистика по сигналам
+        self.backtest_results = {}  # Результаты бэктеста
+        self.performance_metrics = {}  # Метрики производительности
         
         # Кэш данных
         self.data_cache = {}
@@ -66,6 +68,8 @@ class FuturesCryptoTradingBot:
         
         # Имя файла для сохранения состояния
         self.state_file = 'bot_state.json'
+        self.analytics_file = 'analytics_data.json'  # Файл для аналитики
+        self.backtest_file = 'backtest_results.json'  # Файл для бэктеста
         
         # Технические параметры для краткосрочной торговли
         self.risk_params = {
@@ -122,6 +126,7 @@ class FuturesCryptoTradingBot:
         
         # Загрузка состояния при инициализации
         self.load_state()
+        self.load_analytics()  # Загрузка аналитических данных
         
         # Инициализация
         self.load_market_data()
@@ -199,6 +204,63 @@ class FuturesCryptoTradingBot:
             logger.info("✅ Создан новый файл состояния по умолчанию")
         except Exception as e:
             logger.error(f"❌ Ошибка создания файла состояния: {e}")
+            
+    def load_analytics(self):
+        """Загрузка аналитических данных"""
+        try:
+            if os.path.exists('analytics_data.json'):
+                with open('analytics_data.json', 'r', encoding='utf-8') as f:
+                    analytics_data = json.load(f)
+                    
+                if 'signal_stats' in analytics_data:
+                    self.signal_stats = analytics_data['signal_stats']
+                    logger.info(f"📊 Загружено аналитики по {len(self.signal_stats)} активам")
+                    
+                if 'performance_metrics' in analytics_data:
+                    self.performance_metrics = analytics_data['performance_metrics']
+                    logger.info("📊 Метрики производительности загружены")
+                    
+                if 'backtest_results' in analytics_data:
+                    self.backtest_results = analytics_data['backtest_results']
+                    logger.info(f"📊 Загружено {len(self.backtest_results)} результатов бэктеста")
+                    
+        except Exception as e:
+            logger.error(f"❌ Ошибка загрузки аналитики: {e}")
+            
+    def save_analytics(self):
+        """Сохранение аналитических данных"""
+        try:
+            analytics_data = {
+                'signal_stats': self.convert_to_serializable(self.signal_stats),
+                'performance_metrics': self.convert_to_serializable(self.performance_metrics),
+                'backtest_results': self.convert_to_serializable(self.backtest_results),
+                'updated_at': datetime.now().isoformat()
+            }
+            
+            with open(self.analytics_file, 'w', encoding='utf-8') as f:
+                json.dump(analytics_data, f, ensure_ascii=False, indent=2, default=str)
+                
+        except Exception as e:
+            logger.error(f"❌ Ошибка сохранения аналитики: {e}")
+            
+    def save_backtest_results(self, symbol, results):
+        """Сохранение результатов бэктеста"""
+        try:
+            self.backtest_results[symbol] = self.convert_to_serializable(results)
+            
+            # Сохраняем в отдельный файл
+            backtest_data = {
+                'results': self.convert_to_serializable(self.backtest_results),
+                'updated_at': datetime.now().isoformat()
+            }
+            
+            with open(self.backtest_file, 'w', encoding='utf-8') as f:
+                json.dump(backtest_data, f, ensure_ascii=False, indent=2, default=str)
+                
+            logger.info(f"💾 Бэктест для {symbol} сохранен")
+            
+        except Exception as e:
+            logger.error(f"❌ Ошибка сохранения бэктеста для {symbol}: {e}")
             
     def convert_to_serializable(self, obj):
         """Конвертация объекта в сериализуемый формат"""
@@ -396,7 +458,7 @@ class FuturesCryptoTradingBot:
     def calculate_dynamic_rr_ratio(self, symbol, data_dict, signal_type):
         """Динамический расчет RR на основе рыночных условий"""
         if not data_dict or '1h' not in data_dict:
-            return 1.5
+            return 1.5  # Дефолтное значение
             
         df = data_dict['1h']
         if df is None or len(df) < 20:
@@ -414,17 +476,17 @@ class FuturesCryptoTradingBot:
             
             # Корректировка по волатильности
             if volatility > 0.03:  # Высокая волатильность
-                base_rr = 1.3
+                base_rr = 1.3  # Меньше RR для высокой волатильности
             elif volatility < 0.01:  # Низкая волатильность
-                base_rr = 1.8
+                base_rr = 1.8  # Больше RR для низкой волатильности
                 
             # Корректировка по тренду
             if trend_strength > 0.05:  # Сильный тренд
-                base_rr *= 1.2
+                base_rr *= 1.2  # Больше RR для сильного тренда
             else:
-                base_rr *= 0.9
+                base_rr *= 0.9  # Меньше RR для слабого тренда
                 
-            return max(1.2, min(3.0, base_rr))
+            return max(1.2, min(3.0, base_rr))  # Ограничиваем 1.2 - 3.0
         except:
             return 1.5
             
@@ -485,210 +547,823 @@ class FuturesCryptoTradingBot:
         max_portfolio_risk = 0.15  # 15%
         return total_portfolio_risk <= max_portfolio_risk
         
-    def detect_candlestick_patterns(self, df):
-        """Обнаружение паттернов свечей"""
+    def detect_advanced_candlestick_patterns(self, df):
+        """Обнаружение продвинутых паттернов свечей"""
         if df is None or len(df) < 10:
             return {}
             
         patterns = {}
         
         try:
-            # Поглощение бычьее
-            if (df['close'].iloc[-2] < df['open'].iloc[-2] and  # Предыдущая красная
-                df['close'].iloc[-1] > df['open'].iloc[-1] and   # Текущая зеленая
-                df['close'].iloc[-1] > df['open'].iloc[-2] and   # Закрытие выше открытия предыдущей
-                df['open'].iloc[-1] < df['close'].iloc[-2]):     # Открытие ниже закрытия предыдущей
-                patterns['bullish_engulfing'] = True
+            # AB=CD паттерн
+            if len(df) >= 4:
+                # Рассчитываем отношение ног
+                leg1 = abs(df['close'].iloc[-4] - df['close'].iloc[-3])  # AB
+                leg2 = abs(df['close'].iloc[-2] - df['close'].iloc[-1])   # CD
+                
+                if 0.9 <= leg1/leg2 <= 1.1:  # Равные ноги ±10%
+                    patterns['abcd_pattern'] = True
+                    
+            # Голова и плечи
+            if len(df) >= 5:
+                left_shoulder = df['high'].iloc[-5]
+                head = df['high'].iloc[-4] 
+                right_shoulder = df['high'].iloc[-3]
+                neckline = df['low'].iloc[-2:-1].mean()
+                
+                if (head > left_shoulder and head > right_shoulder and
+                    left_shoulder * 0.95 <= right_shoulder <= left_shoulder * 1.05):
+                    patterns['head_shoulders'] = True
+                    
+            # Три белых солдата / три черных ворона
+            if len(df) >= 3:
+                three_green = all(df['close'].iloc[i] > df['open'].iloc[i] for i in [-3, -2, -1])
+                three_red = all(df['close'].iloc[i] < df['open'].iloc[i] for i in [-3, -2, -1])
+                
+                if three_green:
+                    patterns['three_white_soldiers'] = True
+                elif three_red:
+                    patterns['three_black_crows'] = True
+                    
+            # Doji и Spinning Top
+            body_range = abs(df['close'].iloc[-1] - df['open'].iloc[-1])
+            total_range = df['high'].iloc[-1] - df['low'].iloc[-1]
             
-            # Поглощение медвежье
-            if (df['close'].iloc[-2] > df['open'].iloc[-2] and  # Предыдущая зеленая
-                df['close'].iloc[-1] < df['open'].iloc[-1] and   # Текущая красная
-                df['close'].iloc[-1] < df['open'].iloc[-2] and   # Закрытие ниже открытия предыдущей
-                df['open'].iloc[-1] > df['close'].iloc[-2]):     # Открытие выше закрытия предыдущей
-                patterns['bearish_engulfing'] = True
-            
-            # Молот
-            body = abs(df['close'].iloc[-1] - df['open'].iloc[-1])
-            upper_wick = df['high'].iloc[-1] - max(df['close'].iloc[-1], df['open'].iloc[-1])
-            lower_wick = min(df['close'].iloc[-1], df['open'].iloc[-1]) - df['low'].iloc[-1]
-            
-            if (lower_wick > body * 2 and upper_wick < body * 0.5):
-                patterns['hammer'] = True
-            elif (upper_wick > body * 2 and lower_wick < body * 0.5):
-                patterns['shooting_star'] = True
+            if total_range > 0 and body_range/total_range < 0.1:
+                patterns['doji'] = True
+            elif 0.1 <= body_range/total_range <= 0.3:
+                patterns['spinning_top'] = True
                 
         except Exception as e:
             logger.error(f"Ошибка обнаружения паттернов: {e}")
             
         return patterns
+
+    def calculate_multitimeframe_consensus(self, data_dict):
+        """Многотаймфреймовый консенсус тренда"""
+        if not data_dict:
+            return {'consensus_score': 0, 'agreement_level': 'neutral'}
+            
+        consensus_signals = []
+        timeframes_analyzed = 0
         
-    def calculate_market_sentiment(self, data_dict):
-        """Расчет рыночного настроения"""
-        sentiment = {
-            'fear_greed_index': 50,
-            'volatility_regime': 'normal',
-            'volume_regime': 'normal'
+        # Анализируем каждый таймфрейм
+        priority_timeframes = ['1h', '4h', '1d']  # Приоритетные таймфреймы
+        
+        for tf in priority_timeframes:
+            if tf in data_dict and data_dict[tf] is not None and len(data_dict[tf]) >= 20:
+                df = data_dict[tf]
+                timeframes_analyzed += 1
+                
+                try:
+                    # Трендовые индикаторы
+                    current_price = float(df['close'].iloc[-1])
+                    ema_21 = float(df['ema_21'].iloc[-1]) if 'ema_21' in df.columns else current_price
+                    ema_50 = float(df['ema_50'].iloc[-1]) if 'ema_50' in df.columns else current_price
+                    macd = float(df['macd'].iloc[-1]) if 'macd' in df.columns else 0
+                    macd_signal = float(df['macd_signal'].iloc[-1]) if 'macd_signal' in df.columns else 0
+                    rsi = float(df['rsi'].iloc[-1]) if 'rsi' in df.columns else 50
+                    
+                    # Оценка силы тренда
+                    trend_strength = abs(current_price - ema_21) / ema_21 * 100
+                    
+                    # Определяем сигнал по каждому таймфрейму
+                    if (current_price > ema_21 and current_price > ema_50 and 
+                        macd > macd_signal and rsi < 70):
+                        signal = 'strong_bullish'
+                        strength = min(100, trend_strength * 2)
+                    elif (current_price < ema_21 and current_price < ema_50 and 
+                          macd < macd_signal and rsi > 30):
+                        signal = 'strong_bearish'
+                        strength = min(100, trend_strength * 2)
+                    elif current_price > ema_21:
+                        signal = 'bullish'
+                        strength = min(70, trend_strength)
+                    elif current_price < ema_21:
+                        signal = 'bearish'
+                        strength = min(70, trend_strength)
+                    else:
+                        signal = 'neutral'
+                        strength = 30
+                        
+                    consensus_signals.append({
+                        'timeframe': tf,
+                        'signal': signal,
+                        'strength': strength,
+                        'price': current_price
+                    })
+                    
+                except Exception as e:
+                    logger.debug(f"Ошибка анализа {tf}: {e}")
+                    
+        if not consensus_signals:
+            return {'consensus_score': 0, 'agreement_level': 'neutral'}
+            
+        # Рассчитываем консенсус
+        total_strength = sum(signal['strength'] for signal in consensus_signals)
+        bullish_count = len([s for s in consensus_signals if 'bullish' in s['signal']])
+        bearish_count = len([s for s in consensus_signals if 'bearish' in s['signal']])
+        
+        # Уровень согласия
+        agreement_ratio = abs(bullish_count - bearish_count) / len(consensus_signals)
+        agreement_level = 'high' if agreement_ratio > 0.6 else 'medium' if agreement_ratio > 0.3 else 'low'
+        
+        # Средняя сила сигнала
+        avg_strength = total_strength / len(consensus_signals) if consensus_signals else 0
+        
+        # Взвешенный консенсус (более старшие таймфреймы имеют больший вес)
+        weighted_score = 0
+        total_weight = 0
+        
+        for signal in consensus_signals:
+            weight = 1.0
+            if signal['timeframe'] == '1d':
+                weight = 3.0
+            elif signal['timeframe'] == '4h':
+                weight = 2.0
+            elif signal['timeframe'] == '1h':
+                weight = 1.0
+                
+            signal_value = 50  # neutral
+            if 'bullish' in signal['signal']:
+                signal_value = 100 if signal['signal'] == 'strong_bullish' else 75
+            elif 'bearish' in signal['signal']:
+                signal_value = 0 if signal['signal'] == 'strong_bearish' else 25
+                
+            weighted_score += signal_value * weight
+            total_weight += weight
+            
+        consensus_score = weighted_score / total_weight if total_weight > 0 else 50
+        
+        return {
+            'consensus_score': round(consensus_score, 2),
+            'agreement_level': agreement_level,
+            'timeframes_analyzed': timeframes_analyzed,
+            'bullish_signals': bullish_count,
+            'bearish_signals': bearish_count,
+            'avg_strength': round(avg_strength, 2),
+            'detailed_signals': consensus_signals
+        }
+
+    def calculate_wyckoff_levels(self, df, signal_type):
+        """Расчет уровней по методу Вайкоффа"""
+        if df is None or len(df) < 50:
+            return {}
+            
+        try:
+            # Анализ объемного профиля за последние 50 баров
+            recent_data = df.tail(50)
+            
+            # Определяем фазы Вайкоффа
+            volume_profile = {}
+            price_levels = {}
+            
+            # Группируем цены по уровням (с точностью до 0.5% от цены)
+            current_price = float(recent_data['close'].iloc[-1])
+            price_step = current_price * 0.005  # 0.5%
+            
+            for _, row in recent_data.iterrows():
+                price = float(row['close'])
+                volume = float(row['volume'])
+                price_level = round(price / price_step) * price_step
+                
+                if price_level not in volume_profile:
+                    volume_profile[price_level] = 0
+                    price_levels[price_level] = []
+                    
+                volume_profile[price_level] += volume
+                price_levels[price_level].append(price)
+            
+            # Находим значимые уровни поддержки/сопротивления
+            significant_levels = []
+            avg_volume = np.mean(list(volume_profile.values()))
+            
+            for price_level, volume in volume_profile.items():
+                if volume > avg_volume * 1.5:  # Значимый объем (на 50% выше среднего)
+                    price_range = price_levels[price_level]
+                    level_info = {
+                        'price': price_level,
+                        'volume': volume,
+                        'count': len(price_range),
+                        'avg_price': np.mean(price_range),
+                        'volatility': np.std(price_range) if len(price_range) > 1 else 0
+                    }
+                    significant_levels.append(level_info)
+            
+            # Сортируем по объему
+            significant_levels.sort(key=lambda x: x['volume'], reverse=True)
+            
+            # Определяем потенциальные TP/SL
+            wyckoff_levels = {}
+            current_price = float(df['close'].iloc[-1])
+            
+            if signal_type == 'LONG':
+                # Находим уровни сопротивления выше текущей цены
+                resistance_levels = [level for level in significant_levels if level['price'] > current_price]
+                resistance_levels.sort(key=lambda x: x['price'])
+                
+                if resistance_levels:
+                    wyckoff_levels['tp1'] = resistance_levels[0]['price'] if len(resistance_levels) > 0 else current_price * 1.02
+                    wyckoff_levels['tp2'] = resistance_levels[1]['price'] if len(resistance_levels) > 1 else current_price * 1.04
+                    wyckoff_levels['tp3'] = resistance_levels[2]['price'] if len(resistance_levels) > 2 else current_price * 1.06
+                    wyckoff_levels['sl'] = current_price - (wyckoff_levels['tp3'] - current_price) * 0.5
+                    
+            else:  # SHORT
+                # Находим уровни поддержки ниже текущей цены
+                support_levels = [level for level in significant_levels if level['price'] < current_price]
+                support_levels.sort(key=lambda x: x['price'], reverse=True)
+                
+                if support_levels:
+                    wyckoff_levels['tp1'] = support_levels[0]['price'] if len(support_levels) > 0 else current_price * 0.98
+                    wyckoff_levels['tp2'] = support_levels[1]['price'] if len(support_levels) > 1 else current_price * 0.96
+                    wyckoff_levels['tp3'] = support_levels[2]['price'] if len(support_levels) > 2 else current_price * 0.94
+                    wyckoff_levels['sl'] = current_price + (current_price - wyckoff_levels['tp3']) * 0.5
+                    
+            # Добавляем дополнительную информацию
+            wyckoff_levels['significant_volume_levels'] = len(significant_levels)
+            wyckoff_levels['avg_volume_multiple'] = avg_volume / float(df['volume'].tail(20).mean()) if len(df) >= 20 else 1
+            
+            return wyckoff_levels
+            
+        except Exception as e:
+            logger.error(f"Ошибка расчета уровней Вайкоффа: {e}")
+            return {}
+
+    def calculate_dynamic_fibonacci_levels(self, df, signal_type):
+        """Динамические уровни Фибоначчи с адаптацией"""
+        if df is None or len(df) < 100:
+            return {}
+            
+        try:
+            # Находим значимые свинг хай/лоу за последние 100 баров
+            recent_data = df.tail(100)
+            
+            # Определяем локальные экстремумы
+            swing_highs = []
+            swing_lows = []
+            
+            for i in range(20, len(recent_data) - 20):
+                current_high = float(recent_data['high'].iloc[i])
+                current_low = float(recent_data['low'].iloc[i])
+                
+                # Проверяем, является ли текущий бар свинг хай
+                is_swing_high = True
+                for j in range(i-20, i+21):
+                    if j >= 0 and j < len(recent_data):
+                        if float(recent_data['high'].iloc[j]) > current_high:
+                            is_swing_high = False
+                            break
+                            
+                if is_swing_high:
+                    swing_highs.append({
+                        'price': current_high,
+                        'timestamp': recent_data.index[i],
+                        'volume': float(recent_data['volume'].iloc[i])
+                    })
+                
+                # Проверяем, является ли текущий бар свинг лоу
+                is_swing_low = True
+                for j in range(i-20, i+21):
+                    if j >= 0 and j < len(recent_data):
+                        if float(recent_data['low'].iloc[j]) < current_low:
+                            is_swing_low = False
+                            break
+                            
+                if is_swing_low:
+                    swing_lows.append({
+                        'price': current_low,
+                        'timestamp': recent_data.index[i],
+                        'volume': float(recent_data['volume'].iloc[i])
+                    })
+            
+            # Сортируем по объему (более значимые уровни)
+            swing_highs.sort(key=lambda x: x['volume'], reverse=True)
+            swing_lows.sort(key=lambda x: x['volume'], reverse=True)
+            
+            # Берем топ-3 уровней
+            top_highs = swing_highs[:3]
+            top_lows = swing_lows[:3]
+            
+            fibonacci_levels = {}
+            current_price = float(df['close'].iloc[-1])
+            
+            if signal_type == 'LONG' and top_lows:
+                # Используем ближайший свинг лоу как базу
+                base_level = min(top_lows, key=lambda x: abs(x['price'] - current_price))['price']
+                diff = current_price - base_level
+                
+                # Адаптивные коэффициенты Фибоначчи
+                fib_ratios = [0.382, 0.5, 0.618, 0.786, 1.0, 1.272, 1.618]
+                
+                fibonacci_levels = {
+                    f'fib_{int(ratio*1000)}': current_price + diff * ratio
+                    for ratio in fib_ratios
+                }
+                
+            elif signal_type == 'SHORT' and top_highs:
+                # Используем ближайший свинг хай как базу
+                base_level = min(top_highs, key=lambda x: abs(x['price'] - current_price))['price']
+                diff = base_level - current_price
+                
+                # Адаптивные коэффициенты Фибоначчи
+                fib_ratios = [0.382, 0.5, 0.618, 0.786, 1.0, 1.272, 1.618]
+                
+                fibonacci_levels = {
+                    f'fib_{int(ratio*1000)}': current_price - diff * ratio
+                    for ratio in fib_ratios
+                }
+                
+            # Добавляем TP1-3 и SL
+            if fibonacci_levels:
+                sorted_levels = sorted(fibonacci_levels.values())
+                
+                if signal_type == 'LONG':
+                    fibonacci_levels['tp1'] = sorted_levels[min(2, len(sorted_levels)-1)]  # 38.2%
+                    fibonacci_levels['tp2'] = sorted_levels[min(4, len(sorted_levels)-1)]  # 61.8%
+                    fibonacci_levels['tp3'] = sorted_levels[min(6, len(sorted_levels)-1)]  # 100%
+                    fibonacci_levels['sl'] = current_price - (fibonacci_levels['tp3'] - current_price) * 0.5
+                    
+                else:  # SHORT
+                    fibonacci_levels['tp1'] = sorted_levels[max(0, len(sorted_levels)-3)]  # 38.2%
+                    fibonacci_levels['tp2'] = sorted_levels[max(0, len(sorted_levels)-5)]  # 61.8%
+                    fibonacci_levels['tp3'] = sorted_levels[max(0, len(sorted_levels)-7)]  # 100%
+                    fibonacci_levels['sl'] = current_price + (current_price - fibonacci_levels['tp3']) * 0.5
+                    
+            return fibonacci_levels
+            
+        except Exception as e:
+            logger.error(f"Ошибка расчета динамических уровней Фибоначчи: {e}")
+            return {}
+
+    def calculate_market_cycle_analysis(self, data_dict):
+        """Анализ рыночного цикла"""
+        if not data_dict or '1h' not in data_dict:
+            return {'cycle_phase': 'unknown', 'cycle_confidence': 0}
+            
+        df_1h = data_dict['1h']
+        if df_1h is None or len(df_1h) < 100:
+            return {'cycle_phase': 'unknown', 'cycle_confidence': 0}
+            
+        try:
+            # Анализ рыночного цикла на основе:
+            # 1. Волатильность
+            # 2. Объем
+            # 3. Трендовая сила
+            # 4. RSI дивергенции
+            
+            recent_data = df_1h.tail(50)
+            
+            # Волатильность (ATR)
+            atr_values = recent_data['atr'].dropna().values if 'atr' in recent_data.columns else []
+            avg_atr = np.mean(atr_values) if len(atr_values) > 0 else 0.02
+            current_price = float(recent_data['close'].iloc[-1])
+            volatility_percent = (avg_atr / current_price) * 100
+            
+            # Объемный анализ
+            volume_ratio = float(recent_data['volume_ratio'].iloc[-1]) if 'volume_ratio' in recent_data.columns else 1
+            avg_volume_ratio = float(recent_data['volume_ratio'].tail(20).mean()) if 'volume_ratio' in recent_data.columns else 1
+            
+            # Трендовая сила
+            trend_20 = float(recent_data['price_trend_20'].iloc[-1]) if 'price_trend_20' in recent_data.columns else 0
+            trend_50 = float(recent_data['price_trend_50'].iloc[-1]) if 'price_trend_50' in recent_data.columns else 0
+            
+            # RSI анализ
+            rsi_values = recent_data['rsi'].dropna().values if 'rsi' in recent_data.columns else []
+            rsi_trend = np.polyfit(range(len(rsi_values[-10:])), rsi_values[-10:], 1)[0] if len(rsi_values) >= 10 else 0
+            
+            # Определение фазы цикла
+            cycle_phase = 'accumulation'  # По умолчанию накопление
+            cycle_confidence = 50  # По умолчанию средняя уверенность
+            
+            # Анализ для бычьего рынка (накопление → размах → распределение)
+            if volatility_percent > 3:  # Высокая волатильность
+                if volume_ratio > 1.5 and trend_20 > 0.02:  # Высокий объем + сильный тренд
+                    cycle_phase = 'markup'  # Размах
+                    cycle_confidence = 80
+                elif volume_ratio < 0.8:  # Низкий объем
+                    cycle_phase = 'distribution'  # Распределение
+                    cycle_confidence = 70
+                else:
+                    cycle_phase = 'accumulation'  # Накопление
+                    cycle_confidence = 60
+            elif volatility_percent < 1:  # Низкая волатильность
+                if abs(trend_20) < 0.01:  # Плоский тренд
+                    cycle_phase = 'consolidation'  # Консолидация
+                    cycle_confidence = 75
+                else:
+                    cycle_phase = 'accumulation'  # Накопление
+                    cycle_confidence = 65
+            else:  # Средняя волатильность
+                if trend_20 > 0.01 and rsi_trend > 0:  # Восходящий тренд + RSI растет
+                    cycle_phase = 'markup'  # Размах
+                    cycle_confidence = 70
+                elif trend_20 < -0.01 and rsi_trend < 0:  # Нисходящий тренд + RSI падает
+                    cycle_phase = 'markdown'  # Слив
+                    cycle_confidence = 70
+                else:
+                    cycle_phase = 'accumulation'  # Накопление
+                    cycle_confidence = 55
+                    
+            return {
+                'cycle_phase': cycle_phase,
+                'cycle_confidence': cycle_confidence,
+                'volatility_percent': round(volatility_percent, 2),
+                'volume_ratio': round(volume_ratio, 2),
+                'trend_20': round(trend_20 * 100, 2),
+                'trend_50': round(trend_50 * 100, 2),
+                'rsi_trend': round(rsi_trend, 4),
+                'avg_volume_ratio': round(avg_volume_ratio, 2)
+            }
+            
+        except Exception as e:
+            logger.error(f"Ошибка анализа рыночного цикла: {e}")
+            return {'cycle_phase': 'unknown', 'cycle_confidence': 0}
+
+    def apply_cycle_based_filtering(self, symbol, signal, market_cycle):
+        """Применение фильтрации на основе рыночного цикла"""
+        if not signal or not market_cycle:
+            return signal
+            
+        try:
+            cycle_phase = market_cycle.get('cycle_phase', 'unknown')
+            cycle_confidence = market_cycle.get('cycle_confidence', 50)
+            
+            # Адаптация параметров в зависимости от фазы цикла
+            if cycle_phase == 'markup':  # Размах - лучшее время для LONG
+                if signal['signal_type'] == 'LONG':
+                    # Увеличиваем потенциал для LONG сигналов
+                    signal['confidence'] = min(100, signal['confidence'] * 1.2)
+                    signal['risk_reward_ratio'] = signal['risk_reward_ratio'] * 1.1
+                elif signal['signal_type'] == 'SHORT':
+                    # Снижаем уверенность для SHORT сигналов
+                    signal['confidence'] = signal['confidence'] * 0.7
+                    
+            elif cycle_phase == 'markdown':  # Слив - лучшее время для SHORT
+                if signal['signal_type'] == 'SHORT':
+                    # Увеличиваем потенциал для SHORT сигналов
+                    signal['confidence'] = min(100, signal['confidence'] * 1.2)
+                    signal['risk_reward_ratio'] = signal['risk_reward_ratio'] * 1.1
+                elif signal['signal_type'] == 'LONG':
+                    # Снижаем уверенность для LONG сигналов
+                    signal['confidence'] = signal['confidence'] * 0.7
+                    
+            elif cycle_phase == 'distribution':  # Распределение - осторожнее
+                # Снижаем уверенность для всех сигналов
+                signal['confidence'] = signal['confidence'] * 0.8
+                signal['risk_reward_ratio'] = signal['risk_reward_ratio'] * 0.9
+                
+            elif cycle_phase == 'consolidation':  # Консолидация - очень осторожно
+                # Сильно снижаем уверенность
+                signal['confidence'] = signal['confidence'] * 0.6
+                signal['risk_reward_ratio'] = signal['risk_reward_ratio'] * 0.7
+                # Увеличиваем требования к RR
+                if signal['risk_reward_ratio'] < 1.5:
+                    return None  # Слишком низкий RR в консолидации
+                    
+            # Проверка уверенности на основе цикла
+            min_confidence = self.risk_params['min_confidence_threshold']
+            if cycle_confidence < 60:  # Низкая уверенность в цикле
+                min_confidence += 10  # Ужесточаем требования
+                
+            if signal['confidence'] < min_confidence:
+                return None
+                
+            return signal
+            
+        except Exception as e:
+            logger.error(f"Ошибка применения фильтрации по циклу для {symbol}: {e}")
+            return signal
+
+    def calculate_index_correlation_filter(self, symbol, data_dict):
+        """Фильтр по корреляции с рыночными индексами"""
+        if not data_dict or '1h' not in data_dict:
+            return True  # Пропускаем фильтр если нет данных
+            
+        df_1h = data_dict['1h']
+        if df_1h is None or len(df_1h) < 50:
+            return True
+            
+        try:
+            # Получаем данные по BTC (рыночный индекс)
+            btc_data = self.fetch_ohlcv_with_cache('BTC/USDT', '1h', limit=50)
+            if not btc_data or len(btc_data) < 50:
+                return True
+                
+            df_btc = pd.DataFrame(btc_data, columns=['timestamp', 'open', 'high', 'low', 'close', 'volume'])
+            df_btc['timestamp'] = pd.to_datetime(df_btc['timestamp'], unit='ms')
+            df_btc.set_index('timestamp', inplace=True)
+            
+            # Синхронизируем данные
+            common_index = df_1h.index.intersection(df_btc.index)
+            if len(common_index) < 30:  # Мало общих данных
+                return True
+                
+            df_sync_1h = df_1h.loc[common_index]
+            df_sync_btc = df_btc.loc[common_index]
+            
+            # Рассчитываем доходности
+            returns_1h = df_sync_1h['close'].pct_change().dropna()
+            returns_btc = df_sync_btc['close'].pct_change().dropna()
+            
+            # Корреляция с BTC
+            if len(returns_1h) > 10 and len(returns_btc) > 10:
+                min_len = min(len(returns_1h), len(returns_btc))
+                correlation_with_btc = np.corrcoef(
+                    returns_1h.tail(min_len), 
+                    returns_btc.tail(min_len)
+                )[0, 1]
+                
+                # Для альткоинов: хотим положительную корреляцию в бычьем рынке
+                # Для хеджирования: хотим отрицательную корреляцию
+                
+                asset_type = self.get_asset_sector(symbol)
+                
+                if asset_type in ['Bitcoin', 'Ethereum']:  # BTC/ETH
+                    # BTC/ETH должны двигаться независимо от других
+                    if abs(correlation_with_btc) > 0.8:  # Слишком высокая автокорреляция
+                        logger.debug(f"❌ {symbol}: Слишком высокая корреляция с BTC ({correlation_with_btc:.2f})")
+                        return False
+                        
+                elif asset_type in ['Smart Contracts', 'DeFi']:  # Альткоины
+                    # Альткоины обычно коррелируют с BTC > 0.5
+                    if correlation_with_btc < 0.3:
+                        logger.debug(f"❌ {symbol}: Низкая корреляция с BTC ({correlation_with_btc:.2f})")
+                        return False
+                        
+                else:  # Другие активы
+                    # Проверяем нормальный уровень корреляции
+                    if abs(correlation_with_btc) > 0.9:  # Слишком высокая
+                        logger.debug(f"❌ {symbol}: Аномальная корреляция с BTC ({correlation_with_btc:.2f})")
+                        return False
+                        
+            return True
+            
+        except Exception as e:
+            logger.error(f"Ошибка фильтрации по корреляции для {symbol}: {e}")
+            return True  # Пропускаем фильтр при ошибке
+
+    def adaptive_parameter_optimization(self, symbol):
+        """Адаптивная оптимизация параметров на основе истории"""
+        if symbol not in self.signal_stats:
+            return self.risk_params  # Возвращаем дефолтные параметры
+            
+        stats = self.signal_stats[symbol]
+        
+        # Анализируем недавние результаты
+        recent_results = stats.get('recent_results', [])
+        if len(recent_results) < 10:
+            return self.risk_params  # Недостаточно данных
+            
+        recent_win_rate = sum(recent_results[-10:]) / 10
+        overall_win_rate = stats.get('win_rate', 0.5)
+        avg_pnl = stats.get('avg_pnl', 0)
+        
+        # Адаптируем параметры
+        optimized_params = self.risk_params.copy()
+        
+        # Если недавние результаты плохие (< 40%)
+        if recent_win_rate < 0.4:
+            # Ужесточаем фильтры
+            optimized_params['min_confidence_threshold'] = min(75, optimized_params['min_confidence_threshold'] + 10)
+            optimized_params['min_rr_ratio'] = min(2.5, optimized_params['min_rr_ratio'] + 0.3)
+            logger.info(f"📉 {symbol}: Ужесточение фильтров (WR: {recent_win_rate:.1%})")
+            
+        # Если недавние результаты хорошие (> 70%)
+        elif recent_win_rate > 0.7:
+            # Можем немного ослабить фильтры
+            optimized_params['min_confidence_threshold'] = max(40, optimized_params['min_confidence_threshold'] - 5)
+            optimized_params['min_rr_ratio'] = max(1.1, optimized_params['min_rr_ratio'] - 0.1)
+            logger.info(f"📈 {symbol}: Ослабление фильтров (WR: {recent_win_rate:.1%})")
+            
+        # Если средний PNL отрицательный
+        if avg_pnl < -1:
+            # Ужесточаем RR требования
+            optimized_params['min_rr_ratio'] = min(3.0, optimized_params['min_rr_ratio'] + 0.2)
+            logger.info(f"💸 {symbol}: Ужесточение RR (Avg PNL: {avg_pnl:.2f}%)")
+            
+        # Если средний PNL положительный и высокий (> 3%)
+        elif avg_pnl > 3:
+            # Можем немного снизить требования
+            optimized_params['min_rr_ratio'] = max(1.0, optimized_params['min_rr_ratio'] - 0.1)
+            logger.info(f"💰 {symbol}: Оптимизация RR (Avg PNL: {avg_pnl:.2f}%)")
+            
+        return optimized_params
+
+    def get_adaptive_signal_requirements(self, symbol):
+        """Адаптивные требования к сигналам"""
+        base_requirements = {
+            'min_long_conditions': 3,  # Минимум 3 из 6 условий
+            'min_short_conditions': 3,
+            'min_confidence': 45,
+            'min_rr_ratio': 1.2,
+            'require_volume_confirmation': True,
+            'require_trend_confirmation': True,
+            'require_momentum_confirmation': True
         }
         
-        if '1h' not in data_dict or data_dict['1h'] is None:
-            return sentiment
+        if symbol not in self.signal_stats:
+            return base_requirements
             
-        df = data_dict['1h']
-        if len(df) < 20:
-            return sentiment
+        stats = self.signal_stats[symbol]
+        recent_results = stats.get('recent_results', [])
+        
+        if len(recent_results) < 5:
+            return base_requirements
+            
+        # Анализируем последние 5 сделок
+        recent_performance = sum(recent_results[-5:]) / 5
+        
+        adaptive_requirements = base_requirements.copy()
+        
+        # Если последние сделки были убыточными
+        if recent_performance < 0.4:
+            adaptive_requirements['min_long_conditions'] = 4  # Ужесточаем требования
+            adaptive_requirements['min_short_conditions'] = 4
+            adaptive_requirements['min_confidence'] = 55
+            adaptive_requirements['min_rr_ratio'] = 1.5
+            
+        # Если последние сделки были прибыльными
+        elif recent_performance > 0.8:
+            adaptive_requirements['min_long_conditions'] = 2  # Можем немного ослабить
+            adaptive_requirements['min_short_conditions'] = 2
+            adaptive_requirements['min_confidence'] = 40
+            adaptive_requirements['min_rr_ratio'] = 1.1
+            
+        return adaptive_requirements
+
+    def predict_signal_quality(self, symbol, signal, data_dict):
+        """Прогнозирование качества сигнала на основе исторических данных"""
+        if not signal or symbol not in self.signal_stats:
+            return 0.5  # Нейтральная оценка
             
         try:
-            # Расчет Fear & Greed на основе:
-            # 1. RSI (30% веса)
-            rsi = float(df['rsi'].iloc[-1])
-            rsi_score = max(0, min(100, (rsi - 30) * 2.5))
+            stats = self.signal_stats[symbol]
             
-            # 2. Волатильность (30% веса)
-            volatility = float(df['volatility'].iloc[-1]) if 'volatility' in df.columns else 0.02
-            vol_score = max(0, min(100, volatility * 2000))
+            # Факторы прогноза:
+            # 1. Исторический винрейт по символу
+            historical_win_rate = stats.get('win_rate', 0.5)
             
-            # 3. Объем (20% веса)
-            volume_ratio = float(df['volume_ratio'].iloc[-1])
-            vol_ratio_score = max(0, min(100, volume_ratio * 50))
+            # 2. Недавние результаты
+            recent_results = stats.get('recent_results', [])
+            recent_win_rate = sum(recent_results[-10:]) / 10 if len(recent_results) >= 10 else historical_win_rate
             
-            # 4. Тренд (20% веса)
-            trend_20 = float(df['price_trend_20'].iloc[-1])
-            trend_score = max(0, min(100, (trend_20 + 0.1) * 500))
+            # 3. Качество технических условий сигнала
+            tech_quality = self.evaluate_technical_quality(signal, data_dict)
             
-            sentiment['fear_greed_index'] = (
-                rsi_score * 0.3 + 
-                vol_score * 0.3 + 
-                vol_ratio_score * 0.2 + 
-                trend_score * 0.2
+            # 4. Рыночные условия
+            market_conditions = self.evaluate_market_conditions(data_dict)
+            
+            # 5. Время суток (некоторые активы лучше работают в определенное время)
+            time_factor = self.evaluate_time_factor()
+            
+            # Взвешенный прогноз
+            quality_prediction = (
+                historical_win_rate * 0.3 +      # 30% веса
+                recent_win_rate * 0.2 +          # 20% веса
+                tech_quality * 0.25 +           # 25% веса
+                market_conditions * 0.15 +       # 15% веса
+                time_factor * 0.1                # 10% веса
             )
             
-            # Режим волатильности
-            if volatility > 0.04:
-                sentiment['volatility_regime'] = 'high'
-            elif volatility < 0.01:
-                sentiment['volatility_regime'] = 'low'
-            else:
-                sentiment['volatility_regime'] = 'normal'
-                
-            # Режим объема
-            if volume_ratio > 1.5:
-                sentiment['volume_regime'] = 'high'
-            elif volume_ratio < 0.8:
-                sentiment['volume_regime'] = 'low'
-            else:
-                sentiment['volume_regime'] = 'normal'
-                
+            return max(0, min(1, quality_prediction))  # Ограничиваем 0-1
+            
         except Exception as e:
-            logger.error(f"Ошибка расчета настроения рынка: {e}")
-            
-        return sentiment
-        
-    def get_market_regime(self):
-        """Определение рыночного режима"""
-        try:
-            # Получаем данные по BTC для определения общего тренда
-            btc_data = self.fetch_ohlcv_with_cache('BTC/USDT', '1h', limit=50)
-            if btc_data and len(btc_data) >= 20:
-                df = pd.DataFrame(btc_data, columns=['timestamp', 'open', 'high', 'low', 'close', 'volume'])
-                df['timestamp'] = pd.to_datetime(df['timestamp'], unit='ms')
-                df.set_index('timestamp', inplace=True)
-                
-                # Рассчитываем волатильность BTC
-                returns = df['close'].pct_change().dropna()
-                volatility = returns.std() * np.sqrt(365)  # Годовая волатильность
-                
-                # Рассчитываем тренд BTC
-                trend_20 = (df['close'].iloc[-1] - df['close'].iloc[-20]) / df['close'].iloc[-20]
-                
-                if volatility > 0.8:  # Высокая волатильность
-                    return 'high_volatility'
-                elif abs(trend_20) > 0.1:  # Сильный тренд (>10% за 20 часов)
-                    return 'strong_trend'
-                else:
-                    return 'normal'
-            else:
-                return 'normal'
-        except:
-            return 'normal'
+            logger.error(f"Ошибка прогнозирования качества сигнала для {symbol}: {e}")
+            return 0.5
 
-    def adjust_parameters_for_market_regime(self):
-        """Адаптация параметров под рыночный режим"""
-        regime = self.get_market_regime()
-        
-        if regime == 'high_volatility':
-            # В высокой волатильности - больше сигналов, меньше RR
-            self.risk_params['min_confidence_threshold'] = 40
-            self.risk_params['min_rr_ratio'] = 1.1
-        elif regime == 'strong_trend':
-            # В сильном тренде - больше LONG/SHORT сигналов
-            self.risk_params['min_confidence_threshold'] = 42
-            self.risk_params['min_rr_ratio'] = 1.15
-        else:
-            # Нормальный режим
-            self.risk_params['min_confidence_threshold'] = 45
-            self.risk_params['min_rr_ratio'] = 1.2
-            
-    def should_apply_strict_filters(self):
-        """Определяет, нужно ли применять строгие фильтры"""
-        # Если уже много активных сделок - применяем строгие фильтры
-        if len(self.active_trades) >= 8:  # Много позиций
-            return True
-        
-        # Если недавно было много убыточных сделок - строже
-        if self.get_recent_performance() < 0.4:  # Плохая недавняя статистика
-            return True
-        
-        # В обычных условиях - мягче
-        return False
-        
-    def get_recent_performance(self):
-        """Получение недавней статистики"""
-        if not self.signal_stats:
+    def evaluate_technical_quality(self, signal, data_dict):
+        """Оценка технического качества сигнала"""
+        if not signal or not data_dict or '1h' not in data_dict:
             return 0.5
             
-        recent_results = []
-        for stats in self.signal_stats.values():
-            recent_results.extend(stats.get('recent_results', []))
-        
-        if len(recent_results) >= 10:
-            return sum(recent_results[-10:]) / 10
-        return 0.5
-        
-    def update_signal_statistics(self, symbol, signal_result, pnl=None):
-        """Обновление статистики по сигналам"""
-        if symbol not in self.signal_stats:
-            self.signal_stats[symbol] = {
-                'total_signals': 0,
-                'winning_signals': 0,
-                'total_pnl': 0,
-                'win_rate': 0.0,
-                'avg_pnl': 0.0,
-                'recent_results': []  # Последние 20 результатов
-            }
-        
-        stats = self.signal_stats[symbol]
-        stats['total_signals'] += 1
-        
-        if signal_result == 'win':
-            stats['winning_signals'] += 1
-            if pnl:
-                stats['total_pnl'] += pnl
-            stats['recent_results'].append(1)
-        else:
-            stats['recent_results'].append(0)
-        
-        # Сохраняем только последние 20 результатов
-        if len(stats['recent_results']) > 20:
-            stats['recent_results'] = stats['recent_results'][-20:]
-        
-        stats['win_rate'] = stats['winning_signals'] / stats['total_signals']
-        stats['avg_pnl'] = stats['total_pnl'] / stats['total_signals'] if stats['total_signals'] > 0 else 0
-        
-        # Рассчитываем недавний винрейт
-        if len(stats['recent_results']) >= 10:
-            recent_win_rate = sum(stats['recent_results'][-10:]) / 10
-            stats['recent_win_rate'] = recent_win_rate
+        try:
+            df_1h = data_dict['1h']
+            if df_1h is None or len(df_1h) < 20:
+                return 0.5
+                
+            # Оценка силы сигналов:
+            rsi = float(df_1h['rsi'].iloc[-1])
+            stoch_k = float(df_1h['stoch_k'].iloc[-1])
+            stoch_d = float(df_1h['stoch_d'].iloc[-1])
+            macd = float(df_1h['macd'].iloc[-1])
+            macd_signal = float(df_1h['macd_signal'].iloc[-1])
+            bb_position = float(df_1h['bb_position'].iloc[-1])
+            
+            quality_score = 0
+            
+            if signal['signal_type'] == 'LONG':
+                # Оценка качества LONG сигнала
+                # RSI в зоне перепроданности (сильнее = лучше)
+                if 20 <= rsi <= 35:
+                    quality_score += 0.3
+                elif 15 <= rsi <= 20:
+                    quality_score += 0.2
+                elif 35 <= rsi <= 40:
+                    quality_score += 0.1
+                    
+                # Стохастик в зоне перепроданности
+                if stoch_k <= 25 and stoch_d <= 25:
+                    quality_score += 0.2
+                    
+                # MACD бычий
+                if macd > macd_signal:
+                    quality_score += 0.2
+                    
+                # Цена в нижней части Боллинджера
+                if bb_position <= 0.2:
+                    quality_score += 0.3
+                    
+            else:  # SHORT
+                # Оценка качества SHORT сигнала
+                # RSI в зоне перекупленности
+                if 65 <= rsi <= 80:
+                    quality_score += 0.3
+                elif 80 <= rsi <= 85:
+                    quality_score += 0.2
+                elif 60 <= rsi <= 65:
+                    quality_score += 0.1
+                    
+                # Стохастик в зоне перекупленности
+                if stoch_k >= 75 and stoch_d >= 75:
+                    quality_score += 0.2
+                    
+                # MACD медвежий
+                if macd < macd_signal:
+                    quality_score += 0.2
+                    
+                # Цена в верхней части Боллинджера
+                if bb_position >= 0.8:
+                    quality_score += 0.3
+                    
+            return min(1.0, quality_score)
+            
+        except Exception as e:
+            logger.error(f"Ошибка оценки технического качества: {e}")
+            return 0.5
 
+    def evaluate_market_conditions(self, data_dict):
+        """Оценка рыночных условий"""
+        if not data_dict or '1h' not in data_dict:
+            return 0.5
+            
+        try:
+            df_1h = data_dict['1h']
+            if df_1h is None or len(df_1h) < 20:
+                return 0.5
+                
+            volatility = float(df_1h['volatility'].iloc[-1]) if 'volatility' in df_1h.columns else 0.02
+            volume_ratio = float(df_1h['volume_ratio'].iloc[-1]) if 'volume_ratio' in df_1h.columns else 1
+            trend_strength = abs(float(df_1h['price_trend_20'].iloc[-1])) if 'price_trend_20' in df_1h.columns else 0.01
+            
+            # Оценка условий (0 = плохие, 1 = хорошие)
+            condition_score = 0
+            
+            # Волатильность: оптимально 1-5%
+            if 0.01 <= volatility <= 0.05:
+                condition_score += 0.4
+            elif 0.005 <= volatility <= 0.01 or 0.05 <= volatility <= 0.08:
+                condition_score += 0.2
+                
+            # Объем: выше среднего лучше
+            if volume_ratio >= 1.2:
+                condition_score += 0.3
+            elif volume_ratio >= 1.0:
+                condition_score += 0.1
+                
+            # Трендовая сила: умеренная лучше
+            if 0.01 <= trend_strength <= 0.05:
+                condition_score += 0.3
+            elif 0.005 <= trend_strength <= 0.01 or 0.05 <= trend_strength <= 0.1:
+                condition_score += 0.1
+                
+            return min(1.0, condition_score)
+            
+        except Exception as e:
+            logger.error(f"Ошибка оценки рыночных условий: {e}")
+            return 0.5
+
+    def evaluate_time_factor(self):
+        """Оценка фактора времени суток"""
+        try:
+            current_hour = datetime.now().hour
+            
+            # Некоторые активы лучше работают в определенное время:
+            # BTC: 24/7 - нейтрально
+            # Азиатская сессия: 0-8 часов (лучше для азиатских активов)
+            # Европейская сессия: 8-16 часов 
+            # Американская сессия: 16-24 часа
+            
+            if 0 <= current_hour <= 8:  # Азиатская сессия
+                return 0.6  # Средне
+            elif 8 <= current_hour <= 16:  # Европейская сессия
+                return 0.7  # Хорошо
+            else:  # Американская сессия
+                return 0.8  # Отлично
+                
+        except Exception as e:
+            logger.error(f"Ошибка оценки временного фактора: {e}")
+            return 0.5
+            
     def calculate_advanced_indicators(self, df, timeframe):
         """Расчет расширенных технических индикаторов"""
         if df is None or len(df) < 20:
@@ -830,20 +1505,29 @@ class FuturesCryptoTradingBot:
                 tp1 = current_price + (base_tp1_distance * potential_multiplier)
                 tp2 = current_price + (base_tp2_distance * potential_multiplier * 1.02)
                 tp3 = current_price + (base_tp3_distance * potential_multiplier * 1.05)
-            else:
+                
+            else:  # SHORT
                 sl = current_price + (base_sl_distance * 0.95)  # Меньше SL
                 tp1 = current_price - (base_tp1_distance * potential_multiplier)
                 tp2 = current_price - (base_tp2_distance * potential_multiplier * 1.02)
                 tp3 = current_price - (base_tp3_distance * potential_multiplier * 1.05)
             
-            # БОЛЕЕ ЛИБЕРАЛЬНАЯ проверка RR
+            # Проверка валидности
             rr_ratio = abs(tp3 - current_price) / (abs(current_price - sl) + 0.0001)
-            if rr_ratio < 0.6 or rr_ratio > 10:  # Шире диапазон
+            if rr_ratio < 0.8 or rr_ratio > 8:  # Разумный диапазон
                 raise Exception("Неразумный RR")
+                
+            if signal_type == 'LONG':
+                if sl >= current_price or tp3 <= current_price:
+                    raise Exception("Неразумные уровни LONG")
+            else:  # SHORT
+                if sl <= current_price or tp3 >= current_price:
+                    raise Exception("Неразумные уровни SHORT")
                 
             return round(float(sl), 8), round(float(tp1), 8), round(float(tp2), 8), round(float(tp3), 8)
             
         except Exception as e:
+            logger.debug(f"⚠️  {symbol}: Использую базовые уровни из-за: {e}")
             return self.calculate_basic_levels(symbol, data_dict, signal_type)
     
     def calculate_basic_levels(self, symbol, data_dict, signal_type):
@@ -1024,24 +1708,24 @@ class FuturesCryptoTradingBot:
                 df_15m = data_dict['15m']
                 momentum_15m = float(df_15m['roc_3'].iloc[-1]) if not pd.isna(df_15m['roc_3'].iloc[-1]) else 0
             
-            # БОЛЕЕ ЛИБЕРАЛЬНЫЕ условия для LONG
+            # Условия для LONG (НОРМАЛЬНЫЕ)
             long_conditions = [
-                rsi < 45,  # Было 40
-                stoch_k < 35 and stoch_d < 35,  # Было 30/30
-                macd > macd_signal,
-                bb_position < 0.35,  # Было 0.3
-                volume_ratio > 1.0,  # Было 1.1
-                momentum_1h > -0.02   # Было -0.015
+                rsi < 40,  # Нормальная перепроданность
+                stoch_k < 30 and stoch_d < 30,  # Нормальные уровни стохастика
+                macd > macd_signal,  # MACD bullish
+                bb_position < 0.3,  # Цена в нижней части Боллинджера
+                volume_ratio > 1.1,  # Увеличение объема
+                momentum_1h > -0.015  # Умеренный downtrend
             ]
             
-            # БОЛЕЕ ЛИБЕРАЛЬНЫЕ условия для SHORT
+            # Условия для SHORT (НОРМАЛЬНЫЕ)
             short_conditions = [
-                rsi > 55,  # Было 60
-                stoch_k > 65 and stoch_d > 65,
-                macd < macd_signal,
-                bb_position > 0.65,  # Было 0.7
-                volume_ratio > 1.0,  # Было 1.1
-                momentum_1h < 0.02   # Было 0.015
+                rsi > 60,  # Нормальная перекупленность
+                stoch_k > 70 and stoch_d > 70,  # Нормальные уровни стохастика
+                macd < macd_signal,  # MACD bearish
+                bb_position > 0.7,  # Цена в верхней части Боллинджера
+                volume_ratio > 1.1,  # Увеличение объема
+                momentum_1h < 0.015  # Умеренный uptrend
             ]
             
             signal_type = None
@@ -1068,41 +1752,32 @@ class FuturesCryptoTradingBot:
                 short_score = 0
                 short_conditions = []
             
-            # МЕНЬШЕ требований для открытия
-            if long_score >= 2:  # Было 3 - теперь 2 из 6
+            # НОРМАЛЬНЫЕ требования для открытия
+            if long_score >= 3:  # 3 из 6
                 signal_type = 'LONG'
                 confidence_score = (long_score / len(long_conditions)) * 100
-            elif short_score >= 2 and self.risk_params['use_short_signals']:
+            elif short_score >= 3 and self.risk_params['use_short_signals']:  # 3 из 6
                 signal_type = 'SHORT'
                 confidence_score = (short_score / len(short_conditions)) * 100
                 
-            # НИЖЕ порог уверенности
-            if signal_type and confidence_score >= 35:  # Было 50
-                # Применяем фильтры в зависимости от условий
-                should_filter = self.should_apply_strict_filters()
-                
-                if should_filter:
-                    # Строгие фильтры
-                    if not self.check_multitimeframe_confirmation(data_dict, signal_type):
-                        logger.debug(f"❌ {symbol}: Нет подтверждения (строгий режим)")
-                        return None
-                        
-                    if not self.check_volatility_filter(df_1h):
-                        logger.debug(f"❌ {symbol}: Не подходящая волатильность (строгий режим)")
-                        return None
-                        
-                    if not self.check_volume_profile(data_dict):
-                        logger.debug(f"❌ {symbol}: Недостаточный объем (строгий режим)")
-                        return None
-                        
-                    if not self.check_correlation_filter(symbol, self.active_trades):
-                        logger.debug(f"❌ {symbol}: Корреляция (строгий режим)")
-                        return None
-                else:
-                    # Мягкие фильтры (только критические)
-                    if not self.check_correlation_filter(symbol, self.active_trades):
-                        logger.debug(f"❌ {symbol}: Корреляция (мягкий режим)")
-                        return None
+            # НОРМАЛЬНЫЙ порог уверенности
+            if signal_type and confidence_score >= 50:  # 50% уверенности
+                # Проверка дополнительных фильтров
+                if not self.check_multitimeframe_confirmation(data_dict, signal_type):
+                    logger.debug(f"❌ {symbol}: Нет подтверждения на других таймфреймах")
+                    return None
+                    
+                if not self.check_volatility_filter(df_1h):
+                    logger.debug(f"❌ {symbol}: Не подходящая волатильность")
+                    return None
+                    
+                if not self.check_volume_profile(data_dict):
+                    logger.debug(f"❌ {symbol}: Недостаточный объем")
+                    return None
+                    
+                if not self.check_correlation_filter(symbol, self.active_trades):
+                    logger.debug(f"❌ {symbol}: Корреляция с активной позицией")
+                    return None
                 
                 # Рассчитываем динамические TP и SL
                 sl, tp1, tp2, tp3 = self.calculate_dynamic_levels(symbol, data_dict, signal_type)
@@ -1115,9 +1790,9 @@ class FuturesCryptoTradingBot:
                 risk_reward_ratio = abs(tp3 - current_price) / (abs(current_price - sl) + 0.0001)
                 
                 # НОРМАЛЬНЫЙ RR ratio
-                if signal_type == 'LONG' and sl < current_price and tp3 > current_price and risk_reward_ratio > 1.2:
+                if signal_type == 'LONG' and sl < current_price and tp3 > current_price and risk_reward_ratio > 1.3:
                     valid = True
-                elif signal_type == 'SHORT' and sl > current_price and tp3 < current_price and risk_reward_ratio > 1.2:
+                elif signal_type == 'SHORT' and sl > current_price and tp3 < current_price and risk_reward_ratio > 1.3:
                     valid = True
                 else:
                     valid = False
@@ -1360,7 +2035,7 @@ class FuturesCryptoTradingBot:
         """Простой бэктест стратегии с начальным балансом 100"""
         try:
             # Получение исторических данных
-            ohlcv = self.exchange.fetch_ohlcv(symbol, '1h', limit=days*24)
+            ohlcv = self.fetch_ohlcv_with_cache(symbol, '1h', limit=days*24)
             df = pd.DataFrame(ohlcv, columns=['timestamp', 'open', 'high', 'low', 'close', 'volume'])
             df['timestamp'] = pd.to_datetime(df['timestamp'], unit='ms')
             df.set_index('timestamp', inplace=True)
@@ -1506,9 +2181,6 @@ class FuturesCryptoTradingBot:
         cycle_start_time = datetime.now()
         logger.info(f"🚀 Начало анализа {len(self.symbols)} фьючерсных пар...")
         
-        # Адаптируем параметры под рыночный режим
-        self.adjust_parameters_for_market_regime()
-        
         signals = []
         processed_count = 0
         
@@ -1536,55 +2208,6 @@ class FuturesCryptoTradingBot:
         
         self.save_state()
         
-    def send_alert(self, message, alert_type='info'):
-        """Отправка алертов"""
-        if alert_type == 'critical':
-            logger.critical(f"🚨 КРИТИЧЕСКИЙ АЛЕРТ: {message}")
-        elif alert_type == 'warning':
-            logger.warning(f"⚠️  ПРЕДУПРЕЖДЕНИЕ: {message}")
-        elif alert_type == 'success':
-            logger.info(f"✅ УСПЕХ: {message}")
-        else:
-            logger.info(f"🔔 АЛЕРТ: {message}")
-
-    def check_system_health(self):
-        """Проверка состояния системы"""
-        issues = []
-        
-        # Проверка интернет соединения
-        try:
-            import requests
-            response = requests.get('https://api.binance.com/api/v3/ping', timeout=5)
-            if response.status_code != 200:
-                issues.append("Проблемы с подключением к Binance API")
-        except:
-            issues.append("Нет интернет соединения")
-        
-        # Проверка дискового пространства
-        try:
-            total, used, free = shutil.disk_usage("/")
-            if free < 100 * 1024 * 1024:  # Менее 100MB
-                issues.append("Мало свободного места на диске")
-        except:
-            issues.append("Ошибка проверки дискового пространства")
-        
-        # Проверка памяти
-        try:
-            memory = psutil.virtual_memory()
-            if memory.percent > 90:
-                issues.append("Высокое использование памяти")
-        except:
-            issues.append("Ошибка проверки памяти")
-        
-        # Отправка алертов
-        for issue in issues:
-            self.send_alert(issue, 'warning')
-        
-        if not issues:
-            self.send_alert("Система работает нормально", 'success')
-        
-        return len(issues) == 0
-        
     def run(self):
         """Основной цикл работы бота"""
         logger.info("🚀 Запуск фьючерсного криптотрейдинг бота...")
@@ -1604,10 +2227,6 @@ class FuturesCryptoTradingBot:
             try:
                 cycle_count += 1
                 logger.info(f"🔄 Цикл #{cycle_count}")
-                
-                # Проверка состояния системы каждые 10 циклов
-                if cycle_count % 10 == 0:
-                    self.check_system_health()
                 
                 self.run_analysis_cycle()
                 
