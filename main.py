@@ -9,8 +9,7 @@ import json
 import os
 from collections import defaultdict
 import warnings
-import shutil
-import psutil
+
 warnings.filterwarnings('ignore')
 # Создаем основной логгер
 logger = logging.getLogger(__name__)
@@ -54,7 +53,11 @@ class FuturesCryptoTradingBot:
             'TRX/USDT', 'VET/USDT', 'XLM/USDT', 'ICP/USDT', 'FTM/USDT',
             'HBAR/USDT', 'NEAR/USDT', 'ALGO/USDT', 'EGLD/USDT', 'FLOW/USDT',
             'SAND/USDT', 'MANA/USDT', 'AXS/USDT', 'GALA/USDT', 'APE/USDT',
-            'CHZ/USDT', 'ENJ/USDT', 'THETA/USDT', 'GMT/USDT'
+            'CHZ/USDT', 'ENJ/USDT', 'THETA/USDT', 'GMT/USDT', '1000PEPE/USDT',
+            'SUI/USDT', 'JUP/USDT', 'WLD/USDT', 'INJ/USDT', 'TIA/USDT',
+            'STRK/USDT', 'SEI/USDT', 'PYTH/USDT', 'JTO/USDT', 'APT/USDT',
+            'FET/USDT', 'AGIX/USDT', 'OP/USDT', 'ARB/USDT', 'AAVE/USDT'
+            'MATIC/USDT', 'LDO/USDT', 'ENS/USDT', 'MKR/USDT' 
         ]
         # Хранилища данных
         self.active_trades = {}
@@ -81,50 +84,6 @@ class FuturesCryptoTradingBot:
             'min_volume_filter': 300000,
             'min_rr_ratio': 1.2,
             'use_short_signals': True
-        }
-        # Коррелированные пары
-        self.correlated_pairs = {
-            'BTC/USDT': ['ETH/USDT', 'BNB/USDT'],
-            'ETH/USDT': ['BTC/USDT', 'BNB/USDT'],
-            'SOL/USDT': ['AVAX/USDT'],
-            'ADA/USDT': ['DOT/USDT'],
-            'DOT/USDT': ['ADA/USDT']
-        }
-        # Сектора активов
-        self.asset_sectors = {
-            'BTC/USDT': 'Bitcoin',
-            'ETH/USDT': 'Ethereum',
-            'BNB/USDT': 'Exchange',
-            'SOL/USDT': 'Smart Contracts',
-            'ADA/USDT': 'Smart Contracts',
-            'DOGE/USDT': 'Meme',
-            'DOT/USDT': 'Smart Contracts',
-            'AVAX/USDT': 'Smart Contracts',
-            'LINK/USDT': 'Oracle',
-            'UNI/USDT': 'DEX',
-            'LTC/USDT': 'Payments',
-            'ATOM/USDT': 'Interoperability',
-            'ETC/USDT': 'Payments',
-            'FIL/USDT': 'Storage',
-            'TRX/USDT': 'Entertainment',
-            'VET/USDT': 'Supply Chain',
-            'XLM/USDT': 'Payments',
-            'ICP/USDT': 'Infrastructure',
-            'FTM/USDT': 'Smart Contracts',
-            'HBAR/USDT': 'Payments',
-            'NEAR/USDT': 'Smart Contracts',
-            'ALGO/USDT': 'Smart Contracts',
-            'EGLD/USDT': 'Payments',
-            'FLOW/USDT': 'NFT',
-            'SAND/USDT': 'Metaverse',
-            'MANA/USDT': 'Metaverse',
-            'AXS/USDT': 'Gaming',
-            'GALA/USDT': 'Gaming',
-            'APE/USDT': 'NFT',
-            'CHZ/USDT': 'Sports',
-            'ENJ/USDT': 'NFT',
-            'THETA/USDT': 'Video',
-            'GMT/USDT': 'Social'
         }
         # Загрузка состояния при инициализации
         self.load_state()
@@ -700,10 +659,10 @@ class FuturesCryptoTradingBot:
                 logger.debug(f"[{symbol}] SHORT Факторы: RSI={rsi_factor:.2f}, BB={bb_factor:.2f}, Momentum={momentum_factor:.2f}, Trend={trend_factor:.2f}, Volume={volume_factor:.2f}")
                 logger.debug(f"[{symbol}] SHORT final potential_multiplier = {potential_multiplier:.4f}")
             # --- ИСПРАВЛЕНИЕ: Увеличенные базовые расстояния ---
-            base_sl_distance = atr * 1.5   # Увеличено с 1.2
-            base_tp1_distance = atr * 2.0  # Увеличено с 1.8
-            base_tp2_distance = atr * 3.5  # Увеличено с 3.0
-            base_tp3_distance = atr * 5.5  # Увеличено с 4.5/5.0
+            base_sl_distance = atr * 1.0   # Увеличено с 1.2
+            base_tp1_distance = atr * 0.7  # Увеличено с 1.8
+            base_tp2_distance = atr * 1.3  # Увеличено с 3.0
+            base_tp3_distance = atr * 2.0  # Увеличено с 4.5/5.0
             logger.debug(f"[{symbol}] Базовые расстояния: SL={base_sl_distance:.8f}, TP1={base_tp1_distance:.8f}, TP2={base_tp2_distance:.8f}, TP3={base_tp3_distance:.8f}")
             # --- Расчет TP/SL без коррекции по уровням поддержки/сопротивления ---
             if signal_type == 'LONG':
