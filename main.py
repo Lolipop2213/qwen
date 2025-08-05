@@ -12,17 +12,28 @@ import warnings
 import shutil
 import psutil
 warnings.filterwarnings('ignore')
-# Настройка логирования с временем
-logging.basicConfig(
-    level=logging.INFO, 
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-    handlers=[
-        logging.FileHandler('crypto_futures_bot.log'),
-        logging.StreamHandler()
-    ]
-)
+# Создаем основной логгер
 logger = logging.getLogger(__name__)
-
+# Устанавливаем общий уровень на DEBUG, чтобы логгер обрабатывал все сообщения
+logger.setLevel(logging.DEBUG)
+# Создаем формат
+log_format = '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+formatter = logging.Formatter(log_format)
+# --- Обработчик для файла (только INFO и выше) ---
+file_handler = logging.FileHandler('crypto_futures_bot.log', encoding='utf-8')
+file_handler.setLevel(logging.INFO)  # <-- Устанавливаем уровень INFO для файла
+file_handler.setFormatter(formatter)
+# --- Обработчик для консоли (все сообщения, включая DEBUG) ---
+console_handler = logging.StreamHandler()
+console_handler.setLevel(logging.DEBUG) # <-- Устанавливаем уровень DEBUG для консоли
+console_handler.setFormatter(formatter)
+# Очищаем существующие обработчики (на случай, если логгер уже использовался)
+logger.handlers.clear()
+# Добавляем обработчики к логгеру
+logger.addHandler(file_handler)
+logger.addHandler(console_handler)
+# Отключаем propagate, чтобы избежать дублирования через корневой логгер
+logger.propagate = False
 class FuturesCryptoTradingBot:
     def __init__(self):
         # Настройки биржи фьючерсов Binance
@@ -118,7 +129,6 @@ class FuturesCryptoTradingBot:
         # Загрузка состояния при инициализации
         self.load_state()
         self.load_market_data()
-
     def load_state(self):
         """Загрузка состояния бота из файла"""
         try:
@@ -136,7 +146,7 @@ class FuturesCryptoTradingBot:
                     state = json.loads(content)
                 if 'active_trades' in state:
                     self.active_trades = self.convert_to_serializable(state['active_trades'])
-                    logger.info(f"📥 Восстановлено {len(self.active_trades)} активных сделок из состояния")
+                    #logger.info(f"📥 Восстановлено {len(self.active_trades)} активных сделок из состояния")
                 if 'signal_history' in state:
                     raw_history = state['signal_history']
                     self.signal_history = defaultdict(list)
@@ -146,10 +156,10 @@ class FuturesCryptoTradingBot:
                     logger.info(f"📥 Восстановлено {total_signals} сигналов из истории")
                 if 'signals_found' in state:
                     self.signals_found = [self.convert_to_serializable(signal) for signal in state['signals_found']]
-                    logger.info(f"📥 Восстановлено {len(self.signals_found)} найденных сигналов")
+                    #logger.info(f"📥 Восстановлено {len(self.signals_found)} найденных сигналов")
                 if 'analysis_stats' in state:
                     self.analysis_stats = self.convert_to_serializable(state['analysis_stats'])
-                    logger.info("📥 Статистика восстановлена")
+                    #logger.info("📥 Статистика восстановлена")
                 logger.info("✅ Состояние бота успешно загружено")
             else:
                 logger.info("🆕 Новый запуск бота - файл состояния не найден")
@@ -162,7 +172,6 @@ class FuturesCryptoTradingBot:
             logger.error(f"❌ Ошибка загрузки состояния: {e}")
             logger.warning("🔄 Создаю новый файл состояния...")
             self.create_default_state_file()
-
     def create_default_state_file(self):
         """Создание файла состояния по умолчанию"""
         try:
@@ -182,7 +191,6 @@ class FuturesCryptoTradingBot:
             logger.info("✅ Создан новый файл состояния по умолчанию")
         except Exception as e:
             logger.error(f"❌ Ошибка создания файла состояния: {e}")
-
     def convert_to_serializable(self, obj):
         """Конвертация объекта в сериализуемый формат"""
         if isinstance(obj, dict):
@@ -201,7 +209,6 @@ class FuturesCryptoTradingBot:
             return obj.isoformat()
         else:
             return obj
-
     def save_state(self):
         """Сохранение текущего состояния бота"""
         try:
@@ -218,7 +225,6 @@ class FuturesCryptoTradingBot:
             os.replace(temp_file, self.state_file)
         except Exception as e:
             logger.error(f"❌ Ошибка сохранения состояния: {e}")
-
     def load_market_data(self):
         """Загрузка данных о фьючерсных рынках"""
         try:
@@ -229,7 +235,6 @@ class FuturesCryptoTradingBot:
             logger.info(f"Активные фьючерсные пары: {len(self.symbols)}")
         except Exception as e:
             logger.error(f"Ошибка загрузки фьючерсных рынков: {e}")
-
     def fetch_ohlcv_with_cache(self, symbol, timeframe, limit=100):
         """Получение данных с кэшированием"""
         cache_key = f"{symbol}_{timeframe}_{limit}"
@@ -249,7 +254,6 @@ class FuturesCryptoTradingBot:
         else:
             self.data_cache[cache_key] = (None, current_time)
             return None
-
     def fetch_ohlcv_multitimeframe(self, symbol):
         """Получение данных по нескольким таймфреймам"""
         data = {}
@@ -262,7 +266,6 @@ class FuturesCryptoTradingBot:
             logger.error(f"Ошибка получения данных для {symbol}: {e}")
             return None
         return data
-
     def calculate_advanced_indicators(self, df, timeframe):
         """Расчет расширенных технических индикаторов"""
         if df is None or len(df) < 20:
@@ -333,7 +336,6 @@ class FuturesCryptoTradingBot:
             logger.error(f"Ошибка расчета индикаторов: {e}")
             return df
         return df
-
     def detect_advanced_candlestick_patterns(self, df):
         """Обнаружение расширенных паттернов свечей"""
         if df is None or len(df) < 10:
@@ -506,175 +508,247 @@ class FuturesCryptoTradingBot:
             logger.error(f"Ошибка обнаружения паттернов: {e}")
         return patterns
 
+    def calculate_multitimeframe_analysis(self, data_dict):
+        """
+        Анализирует согласованность трендов и импульса на разных таймфреймах.
+        Возвращает словарь с результатами анализа.
+        """
+        if not data_dict:
+            return {}
+
+        analysis_results = {
+            'trend_consistency': 'neutral', # 'strong_long', 'long', 'neutral', 'short', 'strong_short'
+            'momentum_alignment': 'neutral', # 'aligned_long', 'aligned_short', 'divergent', 'neutral'
+            'volatility_regime': 'normal', # 'low', 'normal', 'high'
+            'timeframe_agreement_score': 0 # 0-100, где 100 - полное согласие
+        }
+
+        try:
+            # --- 1. Анализ согласованности тренда ---
+            trend_signals = []
+            # Получаем тренды с разных таймфреймов
+            # Предполагаем, что индикаторы уже рассчитаны в calculate_advanced_indicators
+            for tf in ['15m', '1h', '4h']: # Анализируем старшие таймфреймы
+                if tf in data_dict and data_dict[tf] is not None and len(data_dict[tf]) > 20:
+                    df = data_dict[tf]
+                    # Простой тренд: сравнение цены закрытия с 20-периодной MA или ценой 20 баров назад
+                    # Используем price_trend_20, который уже рассчитан
+                    if 'price_trend_20' in df.columns:
+                        trend_val = df['price_trend_20'].iloc[-1]
+                        if not pd.isna(trend_val):
+                            if trend_val > 0.01: # Порог для подтверждения тренда, например, 1%
+                                trend_signals.append(1) # Long
+                            elif trend_val < -0.01:
+                                trend_signals.append(-1) # Short
+                            else:
+                                trend_signals.append(0) # Neutral/Flat
+
+            # Определяем согласованность тренда
+            if len(trend_signals) >= 2: # Нужно хотя бы 2 таймфрейма
+                long_votes = sum(1 for t in trend_signals if t == 1)
+                short_votes = sum(1 for t in trend_signals if t == -1)
+                neutral_votes = sum(1 for t in trend_signals if t == 0)
+
+                if long_votes == len(trend_signals): # Все таймфреймы дают сигнал Long
+                    analysis_results['trend_consistency'] = 'strong_long'
+                elif short_votes == len(trend_signals): # Все таймфреймы дают сигнал Short
+                    analysis_results['trend_consistency'] = 'strong_short'
+                elif long_votes > short_votes and long_votes >= 2: # Большинство Long
+                    analysis_results['trend_consistency'] = 'long'
+                elif short_votes > long_votes and short_votes >= 2: # Большинство Short
+                    analysis_results['trend_consistency'] = 'short'
+                # В остальных случаях остается 'neutral'
+
+            # --- 2. Анализ согласованности импульса ---
+            momentum_signals = []
+            for tf in ['5m', '15m', '1h']:
+                 if tf in data_dict and data_dict[tf] is not None and len(data_dict[tf]) > 3:
+                    df = data_dict[tf]
+                    if 'roc_3' in df.columns: # Используем ROC как меру импульса
+                        mom_val = df['roc_3'].iloc[-1]
+                        if not pd.isna(mom_val):
+                             if mom_val > 0.005: # Порог импульса, например, 0.5%
+                                momentum_signals.append(1) # Positive momentum
+                             elif mom_val < -0.005:
+                                momentum_signals.append(-1) # Negative momentum
+                             # else: близко к нулю, не добавляем
+
+            # Определяем согласованность импульса
+            if len(momentum_signals) >= 2:
+                 pos_mom_votes = sum(1 for m in momentum_signals if m == 1)
+                 neg_mom_votes = sum(1 for m in momentum_signals if m == -1)
+
+                 if pos_mom_votes == len(momentum_signals):
+                      analysis_results['momentum_alignment'] = 'aligned_long'
+                 elif neg_mom_votes == len(momentum_signals):
+                      analysis_results['momentum_alignment'] = 'aligned_short'
+                 elif pos_mom_votes > 0 and neg_mom_votes > 0:
+                      analysis_results['momentum_alignment'] = 'divergent' # Конфликт импульсов
+                 # else: остается neutral
+
+            # --- 3. Анализ волатильности ---
+            # Используем 'volatility' с таймфрейма 1h как основную меру
+            if '1h' in data_dict and data_dict['1h'] is not None and len(data_dict['1h']) > 14:
+                df_1h = data_dict['1h']
+                if 'volatility' in df_1h.columns:
+                    current_vol = df_1h['volatility'].iloc[-1]
+                    avg_vol = df_1h['volatility'].iloc[-14:].mean() # Средняя за 14 периодов
+                    if not pd.isna(current_vol) and not pd.isna(avg_vol) and avg_vol > 0:
+                         vol_ratio = current_vol / avg_vol
+                         if vol_ratio > 1.5:
+                              analysis_results['volatility_regime'] = 'high'
+                         elif vol_ratio < 0.7:
+                              analysis_results['volatility_regime'] = 'low'
+                         # else: остается normal
+
+            # --- 4. Расчет общего счета согласия ---
+            score = 50 # Базовый счет
+
+            # Добавляем баллы за согласованный тренд
+            if analysis_results['trend_consistency'] == 'strong_long':
+                score += 15
+            elif analysis_results['trend_consistency'] == 'long':
+                score += 7
+            elif analysis_results['trend_consistency'] == 'strong_short':
+                score -= 15
+            elif analysis_results['trend_consistency'] == 'short':
+                score -= 7
+
+            # Добавляем баллы за согласованный импульс
+            if analysis_results['momentum_alignment'] == 'aligned_long':
+                score += 10
+            elif analysis_results['momentum_alignment'] == 'aligned_short':
+                score -= 10
+            elif analysis_results['momentum_alignment'] == 'divergent':
+                score -= 5 # Штраф за расхождение
+
+            # Учитываем волатильность (без изменения счета, но можно использовать позже)
+            # Например, очень высокая волатильность может снижать уверенность,
+            # а очень низкая может указывать на отсутствие движения.
+
+            # Ограничиваем счет между 0 и 100
+            analysis_results['timeframe_agreement_score'] = max(0, min(100, int(score)))
+
+        except Exception as e:
+            logger.error(f"Ошибка в calculate_multitimeframe_analysis: {e}")
+
+        return analysis_results
+
     def calculate_dynamic_levels(self, symbol, data_dict, signal_type):
         """Расчет динамических TP и SL на основе потенциала роста и индикаторов"""
         if not data_dict or '1h' not in data_dict:
-            return self.calculate_basic_levels(symbol, data_dict, signal_type)
+            logger.debug(f"[{symbol}] calculate_dynamic_levels: Нет данных 1h")
+            return None # Возвращаем None, если нет данных
         df_1h = data_dict['1h']
         if df_1h is None or len(df_1h) < 20:
-            return self.calculate_basic_levels(symbol, data_dict, signal_type)
+            logger.debug(f"[{symbol}] calculate_dynamic_levels: Недостаточно данных ({len(df_1h) if df_1h is not None else 0})")
+            return None # Возвращаем None, если недостаточно данных
         try:
             current_price = float(df_1h['close'].iloc[-1])
-            atr = float(df_1h['atr'].iloc[-1]) if 'atr' in df_1h.columns and not pd.isna(df_1h['atr'].iloc[-1]) else current_price * 0.02
-            # Анализ потенциала роста на основе индикаторов
+            # --- ИСПРАВЛЕНИЕ: Более надежная проверка ATR ---
+            # Сначала пытаемся получить ATR из данных
+            atr = None
+            if 'atr' in df_1h.columns:
+                atr_raw = df_1h['atr'].iloc[-1]
+                if not pd.isna(atr_raw) and atr_raw > 0:
+                    atr = float(atr_raw)
+            # Если ATR не удалось получить или он некорректный, используем fallback
+            if atr is None or atr <= 0:
+                # Используем меньший процент от цены для более точного расчета по умолчанию
+                atr = current_price * 0.01 # 1% вместо 2%
+                logger.debug(f"[{symbol}] calculate_dynamic_levels: ATR не доступен или некорректен. Используется fallback: {atr:.8f}")
+            logger.debug(f"[{symbol}] Входные данные для расчета TP/SL: Цена={current_price:.8f}, ATR={atr:.8f}")
+            # --- Расчет индикаторов ---
             rsi = float(df_1h['rsi'].iloc[-1]) if not pd.isna(df_1h['rsi'].iloc[-1]) else 50
             bb_position = float(df_1h['bb_position'].iloc[-1]) if not pd.isna(df_1h['bb_position'].iloc[-1]) else 0.5
             momentum_1h = float(df_1h['roc_7'].iloc[-1]) if not pd.isna(df_1h['roc_7'].iloc[-1]) else 0
             volume_ratio = float(df_1h['volume_ratio'].iloc[-1]) if not pd.isna(df_1h['volume_ratio'].iloc[-1]) else 1
-            # Анализ тренда на старших таймфреймах
+            logger.debug(f"[{symbol}] Индикаторы: RSI={rsi:.2f}, BB_Pos={bb_position:.2f}, Momentum_1h={momentum_1h:.6f}")
             trend_strength_4h = 0
             trend_strength_1h = 0
             if '4h' in data_dict and data_dict['4h'] is not None and len(data_dict['4h']) > 20:
                 df_4h = data_dict['4h']
-                trend_4h = (df_4h['close'].iloc[-1] - df_4h['close'].iloc[-20]) / df_4h['close'].iloc[-20]
-                trend_strength_4h = float(trend_4h) if not pd.isna(trend_4h) else 0
-            if '1h' in data_dict and data_dict['1h'] is not None and len(data_dict['1h']) > 20:
-                df_1h_local = data_dict['1h']
-                trend_1h = (df_1h_local['close'].iloc[-1] - df_1h_local['close'].iloc[-20]) / df_1h_local['close'].iloc[-20]
-                trend_strength_1h = float(trend_1h) if not pd.isna(trend_1h) else 0
-            # Расчет множителя потенциала на основе индикаторов
+                trend_4h_raw = (df_4h['close'].iloc[-1] - df_4h['close'].iloc[-20]) / df_4h['close'].iloc[-20]
+                trend_strength_4h = float(trend_4h_raw) if not pd.isna(trend_4h_raw) else 0
+            # Исправление: используем df_1h из внешнего scope
+            if len(df_1h) > 20: 
+                trend_1h_raw = (df_1h['close'].iloc[-1] - df_1h['close'].iloc[-20]) / df_1h['close'].iloc[-20]
+                trend_strength_1h = float(trend_1h_raw) if not pd.isna(trend_1h_raw) else 0
+            logger.debug(f"[{symbol}] Тренды: 1h={trend_strength_1h:.6f}, 4h={trend_strength_4h:.6f}, Volume_Ratio={volume_ratio:.2f}")
+            # --- Расчет множителя потенциала ---
             potential_multiplier = 1.0
             if signal_type == 'LONG':
-                # RSI фактор (чем ниже RSI, тем больше потенциал роста)
-                rsi_factor = max(0.7, min(1.5, (70 - rsi) / 30))  # 0.7 - 1.5
-                # BB фактор (позиция цены в канале Боллинджера)
-                bb_factor = max(0.7, min(1.5, (1.0 - bb_position) * 1.8))  # 0.7 - 1.5
-                # Моментум фактор
-                momentum_factor = max(0.8, min(1.3, 1.0 + momentum_1h * 10))  # 0.8 - 1.3
-                # Тренд фактор
-                trend_factor = max(0.8, min(1.3, 1.0 + (trend_strength_4h + trend_strength_1h) * 5))  # 0.8 - 1.3
-                # Объем фактор
-                volume_factor = max(0.9, min(1.2, volume_ratio * 0.3 + 0.8))  # 0.9 - 1.2
+                rsi_factor = max(0.7, min(2.0, (70 - rsi) / 20)) # Минимум 0.7
+                bb_factor = max(0.7, min(2.0, (1.0 - bb_position) * 2.0)) # Минимум 0.7
+                momentum_factor = max(0.7, min(2.0, 1.0 + momentum_1h * 15)) # Минимум 0.7
+                trend_factor = max(0.7, min(2.0, 1.0 + (trend_strength_4h + trend_strength_1h) * 8)) # Минимум 0.7
+                volume_factor = max(0.8, min(1.5, volume_ratio * 0.4 + 0.7))
                 potential_multiplier = (rsi_factor + bb_factor + momentum_factor + trend_factor + volume_factor) / 5
-                potential_multiplier = max(0.8, min(1.5, potential_multiplier))  # Ограничиваем 0.8 - 1.5
-            else:  # SHORT
-                # RSI фактор (чем выше RSI, тем больше потенциал падения)
-                rsi_factor = max(0.7, min(1.5, (rsi - 30) / 30))  # 0.7 - 1.5
-                # BB фактор (позиция цены в канале Боллинджера)
-                bb_factor = max(0.7, min(1.5, bb_position * 1.8))  # 0.7 - 1.5
-                # Моментум фактор
-                momentum_factor = max(0.8, min(1.3, 1.0 - momentum_1h * 10))  # 0.8 - 1.3
-                # Тренд фактор
-                trend_factor = max(0.8, min(1.3, 1.0 - (trend_strength_4h + trend_strength_1h) * 5))  # 0.8 - 1.3
-                # Объем фактор
-                volume_factor = max(0.9, min(1.2, volume_ratio * 0.3 + 0.8))  # 0.9 - 1.2
+                # --- ИСПРАВЛЕНИЕ: Ограничение множителя ---
+                potential_multiplier = max(0.7, min(2.5, potential_multiplier)) # Ограничиваем от 0.7 до 2.5
+                logger.debug(f"[{symbol}] LONG Факторы: RSI={rsi_factor:.2f}, BB={bb_factor:.2f}, Momentum={momentum_factor:.2f}, Trend={trend_factor:.2f}, Volume={volume_factor:.2f}")
+                logger.debug(f"[{symbol}] LONG final potential_multiplier = {potential_multiplier:.4f}")
+            else: # SHORT
+                rsi_factor = max(0.7, min(2.0, (rsi - 30) / 20)) # Минимум 0.7
+                bb_factor = max(0.7, min(2.0, bb_position * 2.0)) # Минимум 0.7
+                momentum_factor = max(0.7, min(2.0, 1.0 - momentum_1h * 15)) # Минимум 0.7
+                trend_factor = max(0.7, min(2.0, 1.0 - (trend_strength_4h + trend_strength_1h) * 8)) # Минимум 0.7
+                volume_factor = max(0.8, min(1.5, volume_ratio * 0.4 + 0.7))
                 potential_multiplier = (rsi_factor + bb_factor + momentum_factor + trend_factor + volume_factor) / 5
-                potential_multiplier = max(0.8, min(1.5, potential_multiplier))  # Ограничиваем 0.8 - 1.5
-            # Расчет уровней с учетом потенциала
-            base_sl_distance = atr * 1.3
-            base_tp1_distance = atr * 2.0
-            base_tp2_distance = atr * 3.5
-            base_tp3_distance = atr * 5.0
+                # --- ИСПРАВЛЕНИЕ: Ограничение множителя ---
+                potential_multiplier = max(0.7, min(2.5, potential_multiplier)) # Ограничиваем от 0.7 до 2.5
+                logger.debug(f"[{symbol}] SHORT Факторы: RSI={rsi_factor:.2f}, BB={bb_factor:.2f}, Momentum={momentum_factor:.2f}, Trend={trend_factor:.2f}, Volume={volume_factor:.2f}")
+                logger.debug(f"[{symbol}] SHORT final potential_multiplier = {potential_multiplier:.4f}")
+            # --- ИСПРАВЛЕНИЕ: Увеличенные базовые расстояния ---
+            base_sl_distance = atr * 1.5   # Увеличено с 1.2
+            base_tp1_distance = atr * 2.0  # Увеличено с 1.8
+            base_tp2_distance = atr * 3.5  # Увеличено с 3.0
+            base_tp3_distance = atr * 5.5  # Увеличено с 4.5/5.0
+            logger.debug(f"[{symbol}] Базовые расстояния: SL={base_sl_distance:.8f}, TP1={base_tp1_distance:.8f}, TP2={base_tp2_distance:.8f}, TP3={base_tp3_distance:.8f}")
+            # --- Расчет TP/SL без коррекции по уровням поддержки/сопротивления ---
             if signal_type == 'LONG':
-                sl = current_price - (base_sl_distance * 0.9)  # SL немного уменьшаем
+                sl = current_price - (base_sl_distance * 0.9)
                 tp1 = current_price + (base_tp1_distance * potential_multiplier)
-                tp2 = current_price + (base_tp2_distance * potential_multiplier * 1.1)  # TP2 чуть больше
-                tp3 = current_price + (base_tp3_distance * potential_multiplier * 1.2)  # TP3 еще больше
-                # Проверка уровней поддержки/сопротивления
-                resistance_levels = self.find_resistance_levels(df_1h, current_price)
-                if resistance_levels:
-                    nearest_resistance = min(resistance_levels)
-                    if tp3 > nearest_resistance * 0.99:  # Не выше уровня сопротивления
-                        tp3 = nearest_resistance * 0.99
-                    if tp2 > nearest_resistance * 0.995:
-                        tp2 = nearest_resistance * 0.995
-                    if tp1 > nearest_resistance * 0.998:
-                        tp1 = nearest_resistance * 0.998
-            else:  # SHORT
-                sl = current_price + (base_sl_distance * 0.9)  # SL немного уменьшаем
+                tp2 = current_price + (base_tp2_distance * potential_multiplier)
+                tp3 = current_price + (base_tp3_distance * potential_multiplier)
+                logger.debug(f"[{symbol}] LONG финальные уровни: SL={sl:.8f}, TP1={tp1:.8f}, TP2={tp2:.8f}, TP3={tp3:.8f}")
+            else: # SHORT
+                sl = current_price + (base_sl_distance * 0.9)
                 tp1 = current_price - (base_tp1_distance * potential_multiplier)
-                tp2 = current_price - (base_tp2_distance * potential_multiplier * 1.1)  # TP2 чуть больше
-                tp3 = current_price - (base_tp3_distance * potential_multiplier * 1.2)  # TP3 еще больше
-                # Проверка уровней поддержки/сопротивления
-                support_levels = self.find_support_levels(df_1h, current_price)
-                if support_levels:
-                    nearest_support = max(support_levels)
-                    if tp3 < nearest_support * 1.01:  # Не ниже уровня поддержки
-                        tp3 = nearest_support * 1.01
-                    if tp2 < nearest_support * 1.005:
-                        tp2 = nearest_support * 1.005
-                    if tp1 < nearest_support * 1.002:
-                        tp1 = nearest_support * 1.002
-            # Проверка валидности уровней
+                tp2 = current_price - (base_tp2_distance * potential_multiplier)
+                tp3 = current_price - (base_tp3_distance * potential_multiplier)
+                logger.debug(f"[{symbol}] SHORT финальные уровни: SL={sl:.8f}, TP1={tp1:.8f}, TP2={tp2:.8f}, TP3={tp3:.8f}")
             risk_reward_ratio = abs(tp3 - current_price) / (abs(current_price - sl) + 0.0001)
-            if signal_type == 'LONG' and sl < current_price and tp3 > current_price and risk_reward_ratio > 1.2:
-                valid = True
-            elif signal_type == 'SHORT' and sl > current_price and tp3 < current_price and risk_reward_ratio > 1.2:
-                valid = True
-            else:
-                valid = False
-            if valid:
-                return round(float(sl), 8), round(float(tp1), 8), round(float(tp2), 8), round(float(tp3), 8)
-            else:
-                return self.calculate_basic_levels(symbol, data_dict, signal_type)
+            potential_upside = ((tp3 - current_price) / current_price * 100) if signal_type == 'LONG' else ((current_price - tp3) / current_price * 100)
+            logger.debug(f"[{symbol}] Финальные расчеты: RR={risk_reward_ratio:.2f}, Потенциал={potential_upside:.2f}%")
+            # ВСЕГДА возвращаем рассчитанные уровни
+            return round(float(sl), 8), round(float(tp1), 8), round(float(tp2), 8), round(float(tp3), 8)
         except Exception as e:
             logger.error(f"Ошибка расчета динамических уровней для {symbol}: {e}")
-            return self.calculate_basic_levels(symbol, data_dict, signal_type)
-
-    def find_resistance_levels(self, df, current_price):
-        """Поиск уровней сопротивления"""
-        if df is None or len(df) < 20:
-            return []
-        try:
-            # Свинг хай
-            swing_highs = df['swing_high'].dropna().tail(10)
-            resistance_from_swing = list(swing_highs.values) if len(swing_highs) > 0 else []
-            # Пивотные уровни
-            pivot_resistance = []
-            if 'pivot_r1' in df.columns:
-                recent_pivots = df['pivot_r1'].tail(5).dropna()
-                pivot_resistance = [p for p in recent_pivots if p > current_price]
-            # Уровни выше текущей цены за последние 50 баров
-            recent_highs = df['high'].tail(50)
-            dynamic_resistance = [h for h in recent_highs if h > current_price * 1.01]  # На 1% выше
-            # Объединяем все уровни
-            all_resistance = resistance_from_swing + pivot_resistance + dynamic_resistance
-            return sorted(list(set(all_resistance))) if all_resistance else []
-        except Exception as e:
-            logger.error(f"Ошибка поиска уровней сопротивления: {e}")
-            return []
-
-    def find_support_levels(self, df, current_price):
-        """Поиск уровней поддержки"""
-        if df is None or len(df) < 20:
-            return []
-        try:
-            # Свинг лоу
-            swing_lows = df['swing_low'].dropna().tail(10)
-            support_from_swing = list(swing_lows.values) if len(swing_lows) > 0 else []
-            # Пивотные уровни
-            pivot_support = []
-            if 'pivot_s1' in df.columns:
-                recent_pivots = df['pivot_s1'].tail(5).dropna()
-                pivot_support = [p for p in recent_pivots if p < current_price]
-            # Уровни ниже текущей цены за последние 50 баров
-            recent_lows = df['low'].tail(50)
-            dynamic_support = [l for l in recent_lows if l < current_price * 0.99]  # На 1% ниже
-            # Объединяем все уровни
-            all_support = support_from_swing + pivot_support + dynamic_support
-            return sorted(list(set(all_support)), reverse=True) if all_support else []
-        except Exception as e:
-            logger.error(f"Ошибка поиска уровней поддержки: {e}")
-            return []
-
+            return None # Возвращаем None в случае ошибки
     def calculate_basic_levels(self, symbol, data_dict, signal_type):
         """Базовые уровни на случай ошибок"""
         try:
-            if not data_dict or '1h' not in data_dict or data_dict['1h'] is None:
-                current_price = 1000.0  # Значение по умолчанию для теста
+            # --- ИСПРАВЛЕНИЕ: Получаем реальную цену из данных ---
+            if not data_dict or '1h' not in data_dict or data_dict['1h'] is None or len(data_dict['1h']) == 0:
+                logger.warning(f"[{symbol}] calculate_basic_levels: Нет данных 1h для получения цены. Используется цена по умолчанию.")
+                current_price = 1000.0 # Значение по умолчанию для теста
             else:
                 current_price = float(data_dict['1h']['close'].iloc[-1])
-            atr = current_price * 0.015  # 1.5% от цены
+            # --- ИСПРАВЛЕНИЕ: Используем меньший ATR по умолчанию ---
+            atr = current_price * 0.01 # 1% от цены вместо 1.5%
+            logger.debug(f"[{symbol}] calculate_basic_levels: Цена={current_price:.8f}, ATR (по умолчанию)={atr:.8f}")
             if signal_type == 'LONG':
-                sl = current_price - atr * 1.2
-                tp1 = current_price + atr * 1.8
-                tp2 = current_price + atr * 3.0
-                tp3 = current_price + atr * 4.5
+                sl = current_price - atr * 1.0 # Было 1.2
+                tp1 = current_price + atr * 1.5 # Было 1.8
+                tp2 = current_price + atr * 2.5 # Было 3.0
+                tp3 = current_price + atr * 3.8 # Было 4.5
             else:
-                sl = current_price + atr * 1.2
-                tp1 = current_price - atr * 1.8
-                tp2 = current_price - atr * 3.0
-                tp3 = current_price - atr * 4.5
+                sl = current_price + atr * 1.0 # Было 1.2
+                tp1 = current_price - atr * 1.5 # Было 1.8
+                tp2 = current_price - atr * 2.5 # Было 3.0
+                tp3 = current_price - atr * 3.8 # Было 4.5
+            logger.debug(f"[{symbol}] calculate_basic_levels: SL={sl:.8f}, TP1={tp1:.8f}, TP2={tp2:.8f}, TP3={tp3:.8f}")
             return round(float(sl), 8), round(float(tp1), 8), round(float(tp2), 8), round(float(tp3), 8)
         except Exception as e:
             logger.error(f"Ошибка базовых уровней для {symbol}: {e}")
@@ -684,21 +758,8 @@ class FuturesCryptoTradingBot:
                 return 990.0, 1005.0, 1015.0, 1025.0
             else:
                 return 1010.0, 995.0, 985.0, 975.0
-
-    # Добавленный метод для исправления ошибки
-    def calculate_multitimeframe_analysis(self, data_dict):
-        """
-        Заглушка для анализа по нескольким таймфреймам.
-        Возвращает базовый словарь или None.
-        TODO: Реализовать реальную логику анализа.
-        """
-        # logger.debug("calculate_multitimeframe_analysis вызван, но не реализован.")
-        # Возвращаем пустой словарь или можно вернуть data_dict, если метод просто для структуры.
-        # Или None, если метод не критичен для generate_signal.
-        return {} # Или return None или return data_dict в зависимости от использования в generate_signal
-
     # Улучшенная версия метода generate_signal
-    def generate_signal(self, symbol, data_dict):
+    def generate_signal(self, symbol, data_dict, multitimeframe_analysis=None):
         """Генерация торгового сигнала с динамическими уровнями"""
         if not data_dict or '1h' not in data_dict:
             logger.debug(f"❌ {symbol}: Нет данных 1h")
@@ -727,7 +788,6 @@ class FuturesCryptoTradingBot:
             if '15m' in data_dict and data_dict['15m'] is not None and len(data_dict['15m']) > 5:
                 df_15m = data_dict['15m']
                 momentum_15m = float(df_15m['roc_3'].iloc[-1]) if not pd.isna(df_15m['roc_3'].iloc[-1]) else 0
-            
             # Анализ тренда на старших таймфреймах для более точного фильтра
             trend_1h = 0
             trend_4h = 0
@@ -739,7 +799,6 @@ class FuturesCryptoTradingBot:
                 df_4h_trend = data_dict['4h']
                 trend_4h = (df_4h_trend['close'].iloc[-1] - df_4h_trend['close'].iloc[-20]) / df_4h_trend['close'].iloc[-20]
                 trend_4h = float(trend_4h) if not pd.isna(trend_4h) else 0
-
             # Уточненные условия для LONG (Более строгие)
             long_conditions = [
                 rsi < 35,  # Более глубокая перепроданность
@@ -762,26 +821,43 @@ class FuturesCryptoTradingBot:
                 trend_4h < -0.005,     # Тренд на 4h должен быть явно нисходящим
                 trend_1h < 0.01        # Тренд на 1h не должен быть сильно восходящим
             ]
-
+            signal_type = None
+            confidence_score = 0
+            long_score = sum(1 for cond in long_conditions if cond)
+            short_score = sum(1 for cond in short_conditions if cond)
+            # Сила сигнала (1-5)
+            signal_strength = 0
+            total_conditions = len(long_conditions) if long_score >= short_score else len(short_conditions)
+            if total_conditions > 0:
+                max_score = max(long_score, short_score)
+                if max_score >= 7: # 7 из 8
+                    signal_strength = 5
+                elif max_score >= 6: # 6 из 8
+                    signal_strength = 4
+                elif max_score >= 5: # 5 из 8
+                    signal_strength = 3
+                elif max_score >= 4: # 4 из 8
+                    signal_strength = 2
+                # signal_strength 1 для счетчиков < 4 уже не применяется, так как сигнал не генерируется
+            # Проверяем, разрешены ли SHORT сигналы
+            if not self.risk_params['use_short_signals']:
+                short_score = 0
+                short_conditions = []
             # --- ИСПРАВЛЕННАЯ ЛОГИКА ВЫБОРА ЛУЧШЕГО СИГНАЛА ---
             # Сначала вычисляем оба счетчика
             long_score = sum(1 for cond in long_conditions if cond) # Считаем количество выполненных условий
             short_score = sum(1 for cond in short_conditions if cond) # Считаем количество выполненных условий
-
             signal_type = None
             confidence_score = 0
-
             # Проверяем, разрешены ли SHORT сигналы
             # (Мы это делаем здесь, чтобы корректно сравнить счетчики позже)
             effective_short_score = short_score if self.risk_params['use_short_signals'] else -1 # Если SHORT запрещены, считаем их счетчик недействительным
-
             # Теперь выбираем лучший сигнал на основе счетчиков
             # Условия:
-            # 1. Счетчик должен быть >= 5 (повышенный порог)
+            # 1. Счетчик должен быть >= 4 (новый порог)
             # 2. Счетчик должен быть строго больше счетчика противоположного направления
-            # 3. Если счетчики равны и >= 5, выбираем LONG.
-            
-            if long_score >= 5 and short_score >= 5:
+            # 3. Если счетчики равны и >= 4, выбираем LONG.
+            if long_score >= 4 and short_score >= 4:
                 # Оба сигнала подходят по порогу, выбираем с более высоким счетчиком
                 if long_score > short_score:
                     signal_type = 'LONG'
@@ -793,34 +869,57 @@ class FuturesCryptoTradingBot:
                 elif long_score == short_score:
                      signal_type = 'LONG'
                      confidence_score = (long_score / len(long_conditions)) * 100
-                     
-            elif long_score >= 5:
+            elif long_score >= 4:
                 # Только LONG подходит
                 signal_type = 'LONG'
                 confidence_score = (long_score / len(long_conditions)) * 100
-            elif short_score >= 5 and self.risk_params['use_short_signals']:
+            elif short_score >= 4 and self.risk_params['use_short_signals']:
                 # Только SHORT подходит
                 signal_type = 'SHORT'
                 confidence_score = (short_score / len(short_conditions)) * 100
-
             # --- КОНЕЦ ИСПРАВЛЕННОЙ ЛОГИКИ ---
-
             # Сила сигнала (1-5) - рассчитывается после выбора сигнала
             signal_strength = 1 # По умолчанию
             if signal_type:
                 selected_score = long_score if signal_type == 'LONG' else short_score
                 selected_total = len(long_conditions) if signal_type == 'LONG' else len(short_conditions)
-                
                 if selected_score >= 7: # 7 из 8
                     signal_strength = 5
                 elif selected_score >= 6: # 6 из 8
                     signal_strength = 4
                 elif selected_score >= 5: # 5 из 8
                     signal_strength = 3
-                # signal_strength 1 и 2 для счетчиков < 5 уже не применяются, так как сигнал не генерируется
-                
+                elif selected_score >= 4: # 4 из 8
+                    signal_strength = 2
+                # signal_strength 1 для счетчиков < 4 уже не применяется, так как сигнал не генерируется
+
+            # --- ИНТЕГРАЦИЯ АНАЛИЗА МНОГИХ ТАЙМФРЕЙМОВ ---
             # Порог уверенности 60% (проверяется после выбора типа сигнала)
-            if signal_type and confidence_score >= 60: 
+            # Проверяем signal_strength >= 4 вместо порога 3
+            if signal_type and confidence_score >= 60 and signal_strength >= 4: 
+                # --- ИНТЕГРАЦИЯ: Использование multitimeframe_analysis ---
+                if multitimeframe_analysis:
+                    mt_analysis_score = multitimeframe_analysis.get('timeframe_agreement_score', 50)
+                    mt_trend_consistency = multitimeframe_analysis.get('trend_consistency', 'neutral')
+
+                    # Корректируем уверенность на основе анализа таймфреймов
+                    if mt_analysis_score >= 70:
+                        confidence_score *= 1.1 # +10% уверенности
+                    elif mt_analysis_score <= 30:
+                        confidence_score *= 0.9 # -10% уверенности
+
+                    # Корректируем силу сигнала на основе согласованности тренда
+                    if signal_type == 'LONG' and mt_trend_consistency in ['strong_long', 'long']:
+                        signal_strength = min(5, signal_strength + 1) # Увеличиваем силу, максимум 5
+                    elif signal_type == 'SHORT' and mt_trend_consistency in ['strong_short', 'short']:
+                        signal_strength = min(5, signal_strength + 1)
+                    elif signal_type == 'LONG' and mt_trend_consistency in ['strong_short', 'short']:
+                        signal_strength = max(1, signal_strength - 1) # Уменьшаем силу, минимум 1
+                    elif signal_type == 'SHORT' and mt_trend_consistency in ['strong_long', 'long']:
+                        signal_strength = max(1, signal_strength - 1)
+
+                    confidence_score = max(0, min(100, confidence_score)) # Ограничиваем уверенность
+
                 # Обнаружение паттернов свечей
                 patterns = self.detect_advanced_candlestick_patterns(df_1h)
                 # Если найдены сильные паттерны, увеличиваем силу сигнала
@@ -835,13 +934,20 @@ class FuturesCryptoTradingBot:
                 elif signal_type == 'SHORT' and not any(pattern in patterns for pattern in ['bearish_engulfing', 'shooting_star', 'evening_star', 'three_black_crows']):
                     # Если нет сильных медвежьих паттернов, уменьшаем уверенность
                     confidence_score *= 0.8
-
                 # Рассчитываем динамические TP и SL
-                sl, tp1, tp2, tp3 = self.calculate_dynamic_levels(symbol, data_dict, signal_type)
-                if sl is None or tp1 is None or tp2 is None or tp3 is None:
-                    logger.debug(f"❌ {symbol}: Ошибка расчета уровней")
-                    return None
+                dynamic_levels_result = self.calculate_dynamic_levels(symbol, data_dict, signal_type)
+                # Если динамические уровни не рассчитались, используем базовые
+                if dynamic_levels_result is None:
+                    logger.debug(f"❌ {symbol}: Ошибка расчета динамических уровней, используем базовые")
+                    sl, tp1, tp2, tp3 = self.calculate_basic_levels(symbol, data_dict, signal_type)
+                    # Проверка, что базовые уровни рассчитались (на всякий случай)
+                    if sl is None or tp1 is None or tp2 is None or tp3 is None:
+                        logger.debug(f"❌ {symbol}: Ошибка расчета базовых уровней")
+                        return None
+                else:
+                    sl, tp1, tp2, tp3 = dynamic_levels_result
                 # Проверка валидности уровней
+                logger.debug(f"🔍 [{symbol}] Используются уровни: SL={sl:.8f}, TP1={tp1:.8f}, TP2={tp2:.8f}, TP3={tp3:.8f}, Цена={current_price:.8f}")
                 risk_reward_ratio = abs(tp3 - current_price) / (abs(current_price - sl) + 0.0001)
                 # RR ratio
                 if signal_type == 'LONG' and sl < current_price and tp3 > current_price and risk_reward_ratio > 1.5:
@@ -891,7 +997,6 @@ class FuturesCryptoTradingBot:
         except Exception as e:
             logger.error(f"Ошибка генерации сигнала для {symbol}: {e}")
         return None
-
     def get_current_price(self, symbol):
         """Получение текущей цены фьючерса"""
         try:
@@ -900,7 +1005,6 @@ class FuturesCryptoTradingBot:
         except Exception as e:
             logger.error(f"Ошибка получения цены фьючерса для {symbol}: {e}")
             return None
-
     def check_active_trades(self):
         """Проверка статуса всех активных сделок"""
         trades_to_remove = []
@@ -913,7 +1017,6 @@ class FuturesCryptoTradingBot:
                 del self.active_trades[symbol]
         if trades_to_remove or len(self.active_trades) > 0:
             self.save_state()
-
     def check_trade_status(self, symbol):
         """Проверка статуса конкретной сделки"""
         if symbol not in self.active_trades:
@@ -954,7 +1057,6 @@ class FuturesCryptoTradingBot:
             self.save_state()
             return 'closed'
         return 'active'
-
     def get_trade_status(self, trade):
         """Получение статуса сделки"""
         if trade.get('tp3_reached', False):
@@ -967,14 +1069,12 @@ class FuturesCryptoTradingBot:
             return 'hit SL'
         else:
             return 'active'
-
     # Исправленный метод send_signal
     def send_signal(self, signal):
         """Отправка торгового сигнала"""
         if signal is None:
             return
         symbol = signal['symbol']
-        
         # НОВАЯ ЛОГИКА: Проверяем, есть ли уже активная сделка по этой паре.
         # Это предотвратит генерацию новых сигналов, пока позиция открыта.
         # Логика "один сигнал в час" убрана.
@@ -982,7 +1082,6 @@ class FuturesCryptoTradingBot:
              # Сигнал не отправляется, если сделка уже открыта.
              # logger.debug(f"⏭️  Сигнал для {symbol} не отправлен - позиция уже открыта.")
              return # Просто выходим из функции
-
         # Если активной сделки нет, обрабатываем и отправляем сигнал
         self.signal_history[symbol].append(self.convert_to_serializable(signal))
         if len(self.signal_history[symbol]) > 50:
@@ -1010,14 +1109,12 @@ class FuturesCryptoTradingBot:
         # Показываем найденные паттерны
         if signal.get('patterns'):
             logger.info(f"   🔍 Паттерны: {', '.join(signal['patterns'])}")
-        
         # Добавляем сделку в активные (это уже было, но теперь без предварительной проверки symbol not in self.active_trades)
         self.active_trades[signal['symbol']] = self.convert_to_serializable(signal).copy()
         for tp_name in ['tp1', 'tp2', 'tp3']:
             self.active_trades[signal['symbol']][f'{tp_name}_reached'] = False
         self.active_trades[signal['symbol']]['sl_reached'] = False
         self.save_state()
-
     def save_signals_log(self):
         """Сохранение лога всех найденных сигналов"""
         try:
@@ -1038,7 +1135,6 @@ class FuturesCryptoTradingBot:
                 df.to_csv('signals_log.csv', index=False)
         except Exception as e:
             logger.error(f"Ошибка сохранения лога сигналов: {e}")
-
     # Исправленный метод process_symbol
     def process_symbol(self, symbol):
         """Обработка одного символа"""
@@ -1052,8 +1148,8 @@ class FuturesCryptoTradingBot:
             # Исправление ошибки: calculate_multitimeframe_analysis теперь определен
             multitimeframe_analysis = self.calculate_multitimeframe_analysis(data_dict)
             if symbol not in self.active_trades:
-                # Убираем multitimeframe_analysis из вызова, так как он не используется
-                signal = self.generate_signal(symbol, data_dict) 
+                # Передаем multitimeframe_analysis в generate_signal
+                signal = self.generate_signal(symbol, data_dict, multitimeframe_analysis) 
                 return signal
             else:
                 logger.debug(f"⏭️  Пропущен {symbol} - уже есть активная сделка")
@@ -1061,7 +1157,6 @@ class FuturesCryptoTradingBot:
         except Exception as e:
             logger.error(f"Ошибка обработки {symbol}: {e}")
             return None
-
     def run_analysis_cycle(self):
         """Запуск одного цикла анализа"""
         cycle_start_time = datetime.now()
@@ -1086,16 +1181,15 @@ class FuturesCryptoTradingBot:
         logger.info(f"✅ Цикл анализа завершен за {cycle_duration.total_seconds():.1f} секунд")
         logger.info(f"📊 Обработано {processed_count} пар. Найдено {len(signals)} сигналов.")
         self.save_state()
-
     def run(self):
         """Основной цикл работы бота"""
         logger.info("🚀 Запуск фьючерсного криптотрейдинг бота...")
-        logger.info(f"📊 Мониторинг {len(self.symbols)} фьючерсных пар на {len(self.timeframes)} таймфреймах")
-        logger.info(f"💾 Состояние сохраняется в: {self.state_file}")
-        logger.info(f"📈 SHORT сигналы: {'ВКЛЮЧЕНЫ' if self.risk_params['use_short_signals'] else 'ВЫКЛЮЧЕНЫ'}")
-        logger.info(f"🎯 TP/SL рассчитываются на основе потенциала роста и индикаторов")
+        #logger.info(f"📊 Мониторинг {len(self.symbols)} фьючерсных пар на {len(self.timeframes)} таймфреймах")
+        #logger.info(f"💾 Состояние сохраняется в: {self.state_file}")
+        #logger.info(f"📈 SHORT сигналы: {'ВКЛЮЧЕНЫ' if self.risk_params['use_short_signals'] else 'ВЫКЛЮЧЕНЫ'}")
+        #logger.info(f"🎯 TP/SL рассчитываются на основе потенциала роста и индикаторов")
         # Изменено: Цикл анализа каждую минуту вместо 5
-        logger.info(f"🕒 Цикл анализа каждую минуту")
+        #logger.info(f"🕒 Цикл анализа каждую минуту")
         if self.active_trades:
             logger.info(f"📥 При запуске обнаружено {len(self.active_trades)} активных сделок для отслеживания")
             for symbol, trade in self.active_trades.items():
@@ -1119,7 +1213,6 @@ class FuturesCryptoTradingBot:
                 logger.error(f"❌ Критическая ошибка в основном цикле: {e}")
                 self.save_state()
                 time.sleep(60)
-
 # Использование бота
 if __name__ == "__main__":
     bot = FuturesCryptoTradingBot()

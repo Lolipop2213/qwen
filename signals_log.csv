@@ -1,4 +1,7 @@
-timestamp,symbol,signal_type,entry_price,tp1,tp2,tp3,sl,confidence,rr_ratio,potential_upside,signal_strength,patterns
-2025-08-01T12:23:41.323425,UNI/USDT,LONG,9.12,9.36624,9.5304,9.7356,8.95584,50.0,3.75,6.75,4.0,[]
-2025-08-01T12:32:21.566536,TRX/USDT,SHORT,0.32791,0.31905643,0.31315405,0.30577607,0.33381238,50.0,3.69,6.75,4.0,['three_white_soldiers']
-2025-08-01T12:58:01.638450,BNB/USDT,SHORT,773.8,752.9074,738.979,721.5685,787.7284,50.0,3.75,6.75,3.0,['spinning_top']
+timestamp,symbol,signal_type,entry_price,tp1,tp2,tp3,sl,confidence,rr_ratio,potential_upside,signal_strength,patterns,news_info
+2025-08-04T14:53:39.957228,ATOM/USDT,LONG,4.246,4.32869837,4.39072216,4.47342053,4.20099571,60.0,5.04,5.36,4.0,['tweezer_tops'],
+2025-08-05T07:41:42.651779,XRP/USDT,LONG,3.0051,3.07737222,3.13157638,3.2038486,2.96511149,60.0,4.96,6.61,4.0,[],
+2025-08-05T07:52:51.300155,ETH/USDT,LONG,3614.81,3696.03434563,3756.95260485,3838.17695048,3571.47527334,60.0,5.15,6.18,4.0,[],"{'latest_news': None, 'news_sentiment': 'neutral', 'news_impact': 'none'}"
+2025-08-05T07:53:04.625826,UNI/USDT,LONG,9.688,9.99778947,10.23013158,10.53992105,9.51977374,60.0,5.06,8.79,4.0,['evening_star'],"{'latest_news': None, 'news_sentiment': 'neutral', 'news_impact': 'none'}"
+2025-08-05T07:53:29.577337,APE/USDT,LONG,0.5631,0.57560389,0.58498181,0.59748571,0.55627953,60.0,4.97,6.11,4.0,"['spinning_top', 'three_black_crows']","{'latest_news': None, 'news_sentiment': 'neutral', 'news_impact': 'none'}"
+2025-08-05T08:38:29.421407,CHZ/USDT,LONG,0.03916,0.03996871,0.04057523,0.04138394,0.03870518,75.0,4.01,5.68,5.0,"['bullish_engulfing', 'tweezer_bottoms']",
