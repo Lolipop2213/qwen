@@ -56,8 +56,8 @@ class FuturesCryptoTradingBot:
             'CHZ/USDT', 'ENJ/USDT', 'THETA/USDT', 'GMT/USDT', '1000PEPE/USDT',
             'SUI/USDT', 'JUP/USDT', 'WLD/USDT', 'INJ/USDT', 'TIA/USDT',
             'STRK/USDT', 'SEI/USDT', 'PYTH/USDT', 'JTO/USDT', 'APT/USDT',
-            'FET/USDT', 'AGIX/USDT', 'OP/USDT', 'ARB/USDT', 'AAVE/USDT'
-            'MATIC/USDT', 'LDO/USDT', 'ENS/USDT', 'MKR/USDT' 
+            'FET/USDT', 'AGIX/USDT', 'OP/USDT', 'ARB/USDT', 'AAVE/USDT', 
+            'LDO/USDT', 'ENS/USDT', 'MKR/USDT' 
         ]
         # Хранилища данных
         self.active_trades = {}
@@ -699,14 +699,14 @@ class FuturesCryptoTradingBot:
             logger.debug(f"[{symbol}] calculate_basic_levels: Цена={current_price:.8f}, ATR (по умолчанию)={atr:.8f}")
             if signal_type == 'LONG':
                 sl = current_price - atr * 1.0 # Было 1.2
-                tp1 = current_price + atr * 1.5 # Было 1.8
-                tp2 = current_price + atr * 2.5 # Было 3.0
-                tp3 = current_price + atr * 3.8 # Было 4.5
+                tp1 = current_price + atr * 0.7 # Было 1.8
+                tp2 = current_price + atr * 1.3 # Было 3.0
+                tp3 = current_price + atr * 2.0 # Было 4.5
             else:
                 sl = current_price + atr * 1.0 # Было 1.2
-                tp1 = current_price - atr * 1.5 # Было 1.8
-                tp2 = current_price - atr * 2.5 # Было 3.0
-                tp3 = current_price - atr * 3.8 # Было 4.5
+                tp1 = current_price - atr * 0.7 # Было 1.8
+                tp2 = current_price - atr * 1.3 # Было 3.0
+                tp3 = current_price - atr * 2.0 # Было 4.5
             logger.debug(f"[{symbol}] calculate_basic_levels: SL={sl:.8f}, TP1={tp1:.8f}, TP2={tp2:.8f}, TP3={tp3:.8f}")
             return round(float(sl), 8), round(float(tp1), 8), round(float(tp2), 8), round(float(tp3), 8)
         except Exception as e:
