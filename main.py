@@ -8,8 +8,7 @@ import logging
 import json
 import os
 from collections import defaultdict
-import warnings
-warnings.filterwarnings('ignore')
+
 # Создаем основной логгер
 logger = logging.getLogger(__name__)
 # Устанавливаем общий уровень на DEBUG, чтобы логгер обрабатывал все сообщения
@@ -32,6 +31,7 @@ logger.addHandler(file_handler)
 logger.addHandler(console_handler)
 # Отключаем propagate, чтобы избежать дублирования через корневой логгер
 logger.propagate = False
+
 class FuturesCryptoTradingBot:
     def __init__(self):
         # Настройки биржи фьючерсов Binance
@@ -63,16 +63,14 @@ class FuturesCryptoTradingBot:
             'signals_generated': 0,
             'start_time': datetime.now().isoformat()
         }
-        self.signal_stats = {}
-        self.backtest_results = {}
-        self.performance_metrics = {}
+        # --- НОВОЕ: Хранилище для лога закрытия сделок ---
+        self.trade_closures_log = [] # Список словарей с информацией о закрытиях
+        # --- КОНЕЦ НОВОГО ---
         # Кэш данных
         self.data_cache = {}
         self.cache_expiry = 300  # 5 минут
         # Имя файла для сохранения состояния
         self.state_file = 'bot_state.json'
-        self.analytics_file = 'analytics_data.json'
-        self.backtest_file = 'backtest_results.json'
         # Технические параметры
         self.risk_params = {
             'min_confidence_threshold': 45,  # Либеральные параметры
@@ -80,53 +78,10 @@ class FuturesCryptoTradingBot:
             'min_rr_ratio': 1.2,
             'use_short_signals': True
         }
-        # Коррелированные пары
-        self.correlated_pairs = {
-            'BTC/USDT': ['ETH/USDT', 'BNB/USDT'],
-            'ETH/USDT': ['BTC/USDT', 'BNB/USDT'],
-            'SOL/USDT': ['AVAX/USDT'],
-            'ADA/USDT': ['DOT/USDT'],
-            'DOT/USDT': ['ADA/USDT']
-        }
-        # Сектора активов
-        self.asset_sectors = {
-            'BTC/USDT': 'Bitcoin',
-            'ETH/USDT': 'Ethereum',
-            'BNB/USDT': 'Exchange',
-            'SOL/USDT': 'Smart Contracts',
-            'ADA/USDT': 'Smart Contracts',
-            'DOGE/USDT': 'Meme',
-            'DOT/USDT': 'Smart Contracts',
-            'AVAX/USDT': 'Smart Contracts',
-            'LINK/USDT': 'Oracle',
-            'UNI/USDT': 'DEX',
-            'LTC/USDT': 'Payments',
-            'ATOM/USDT': 'Interoperability',
-            'ETC/USDT': 'Payments',
-            'FIL/USDT': 'Storage',
-            'TRX/USDT': 'Entertainment',
-            'VET/USDT': 'Supply Chain',
-            'XLM/USDT': 'Payments',
-            'ICP/USDT': 'Infrastructure',
-            'FTM/USDT': 'Smart Contracts',
-            'HBAR/USDT': 'Payments',
-            'NEAR/USDT': 'Smart Contracts',
-            'ALGO/USDT': 'Smart Contracts',
-            'EGLD/USDT': 'Payments',
-            'FLOW/USDT': 'NFT',
-            'SAND/USDT': 'Metaverse',
-            'MANA/USDT': 'Metaverse',
-            'AXS/USDT': 'Gaming',
-            'GALA/USDT': 'Gaming',
-            'APE/USDT': 'NFT',
-            'CHZ/USDT': 'Sports',
-            'ENJ/USDT': 'NFT',
-            'THETA/USDT': 'Video',
-            'GMT/USDT': 'Social'
-        }
         # Загрузка состояния при инициализации
         self.load_state()
         self.load_market_data()
+
     def load_state(self):
         """Загрузка состояния бота из файла"""
         try:
@@ -158,6 +113,12 @@ class FuturesCryptoTradingBot:
                 if 'analysis_stats' in state:
                     self.analysis_stats = self.convert_to_serializable(state['analysis_stats'])
                     #logger.info("📥 Статистика восстановлена")
+                # --- НОВОЕ: Загрузка лога закрытий ---
+                if 'trade_closures_log' in state:
+                    raw_closures = state['trade_closures_log']
+                    self.trade_closures_log = [self.convert_to_serializable(entry) for entry in raw_closures]
+                    logger.info(f"📥 Восстановлено {len(self.trade_closures_log)} записей о закрытиях из состояния")
+                # --- КОНЕЦ НОВОГО ---
                 logger.info("✅ Состояние бота успешно загружено")
             else:
                 logger.info("🆕 Новый запуск бота - файл состояния не найден")
@@ -170,6 +131,7 @@ class FuturesCryptoTradingBot:
             logger.error(f"❌ Ошибка загрузки состояния: {e}")
             logger.warning("🔄 Создаю новый файл состояния...")
             self.create_default_state_file()
+
     def create_default_state_file(self):
         """Создание файла состояния по умолчанию"""
         try:
@@ -182,6 +144,9 @@ class FuturesCryptoTradingBot:
                     'signals_generated': 0,
                     'start_time': datetime.now().isoformat()
                 },
+                # --- НОВОЕ: Инициализация лога закрытий в дефолтном состоянии ---
+                'trade_closures_log': [],
+                # --- КОНЕЦ НОВОГО ---
                 'created_at': datetime.now().isoformat()
             }
             with open(self.state_file, 'w', encoding='utf-8') as f:
@@ -189,6 +154,7 @@ class FuturesCryptoTradingBot:
             logger.info("✅ Создан новый файл состояния по умолчанию")
         except Exception as e:
             logger.error(f"❌ Ошибка создания файла состояния: {e}")
+
     def convert_to_serializable(self, obj):
         """Конвертация объекта в сериализуемый формат"""
         if isinstance(obj, dict):
@@ -207,6 +173,7 @@ class FuturesCryptoTradingBot:
             return obj.isoformat()
         else:
             return obj
+
     def save_state(self):
         """Сохранение текущего состояния бота"""
         try:
@@ -215,6 +182,9 @@ class FuturesCryptoTradingBot:
                 'signal_history': self.convert_to_serializable(dict(self.signal_history)),
                 'signals_found': self.convert_to_serializable(self.signals_found),
                 'analysis_stats': self.convert_to_serializable(self.analysis_stats),
+                # --- НОВОЕ: Сохранение лога закрытий ---
+                'trade_closures_log': self.convert_to_serializable(self.trade_closures_log),
+                # --- КОНЕЦ НОВОГО ---
                 'saved_at': datetime.now().isoformat()
             }
             temp_file = self.state_file + '.tmp'
@@ -223,6 +193,7 @@ class FuturesCryptoTradingBot:
             os.replace(temp_file, self.state_file)
         except Exception as e:
             logger.error(f"❌ Ошибка сохранения состояния: {e}")
+
     def load_market_data(self):
         """Загрузка данных о фьючерсных рынках"""
         try:
@@ -233,6 +204,7 @@ class FuturesCryptoTradingBot:
             logger.info(f"Активные фьючерсные пары: {len(self.symbols)}")
         except Exception as e:
             logger.error(f"Ошибка загрузки фьючерсных рынков: {e}")
+
     def fetch_ohlcv_with_cache(self, symbol, timeframe, limit=100):
         """Получение данных с кэшированием"""
         cache_key = f"{symbol}_{timeframe}_{limit}"
@@ -252,6 +224,7 @@ class FuturesCryptoTradingBot:
         else:
             self.data_cache[cache_key] = (None, current_time)
             return None
+
     def fetch_ohlcv_multitimeframe(self, symbol):
         """Получение данных по нескольким таймфреймам"""
         data = {}
@@ -264,6 +237,7 @@ class FuturesCryptoTradingBot:
             logger.error(f"Ошибка получения данных для {symbol}: {e}")
             return None
         return data
+
     def calculate_advanced_indicators(self, df, timeframe):
         """Расчет расширенных технических индикаторов"""
         if df is None or len(df) < 20:
@@ -334,6 +308,7 @@ class FuturesCryptoTradingBot:
             logger.error(f"Ошибка расчета индикаторов: {e}")
             return df
         return df
+
     def detect_advanced_candlestick_patterns(self, df):
         """Обнаружение расширенных паттернов свечей"""
         if df is None or len(df) < 10:
@@ -513,14 +488,12 @@ class FuturesCryptoTradingBot:
         """
         if not data_dict:
             return {}
-
         analysis_results = {
             'trend_consistency': 'neutral', # 'strong_long', 'long', 'neutral', 'short', 'strong_short'
             'momentum_alignment': 'neutral', # 'aligned_long', 'aligned_short', 'divergent', 'neutral'
             'volatility_regime': 'normal', # 'low', 'normal', 'high'
             'timeframe_agreement_score': 0 # 0-100, где 100 - полное согласие
         }
-
         try:
             # --- 1. Анализ согласованности тренда ---
             trend_signals = []
@@ -540,13 +513,11 @@ class FuturesCryptoTradingBot:
                                 trend_signals.append(-1) # Short
                             else:
                                 trend_signals.append(0) # Neutral/Flat
-
             # Определяем согласованность тренда
             if len(trend_signals) >= 2: # Нужно хотя бы 2 таймфрейма
                 long_votes = sum(1 for t in trend_signals if t == 1)
                 short_votes = sum(1 for t in trend_signals if t == -1)
                 neutral_votes = sum(1 for t in trend_signals if t == 0)
-
                 if long_votes == len(trend_signals): # Все таймфреймы дают сигнал Long
                     analysis_results['trend_consistency'] = 'strong_long'
                 elif short_votes == len(trend_signals): # Все таймфреймы дают сигнал Short
@@ -556,7 +527,6 @@ class FuturesCryptoTradingBot:
                 elif short_votes > long_votes and short_votes >= 2: # Большинство Short
                     analysis_results['trend_consistency'] = 'short'
                 # В остальных случаях остается 'neutral'
-
             # --- 2. Анализ согласованности импульса ---
             momentum_signals = []
             for tf in ['5m', '15m', '1h']:
@@ -570,12 +540,10 @@ class FuturesCryptoTradingBot:
                              elif mom_val < -0.005:
                                 momentum_signals.append(-1) # Negative momentum
                              # else: близко к нулю, не добавляем
-
             # Определяем согласованность импульса
             if len(momentum_signals) >= 2:
                  pos_mom_votes = sum(1 for m in momentum_signals if m == 1)
                  neg_mom_votes = sum(1 for m in momentum_signals if m == -1)
-
                  if pos_mom_votes == len(momentum_signals):
                       analysis_results['momentum_alignment'] = 'aligned_long'
                  elif neg_mom_votes == len(momentum_signals):
@@ -583,7 +551,6 @@ class FuturesCryptoTradingBot:
                  elif pos_mom_votes > 0 and neg_mom_votes > 0:
                       analysis_results['momentum_alignment'] = 'divergent' # Конфликт импульсов
                  # else: остается neutral
-
             # --- 3. Анализ волатильности ---
             # Используем 'volatility' с таймфрейма 1h как основную меру
             if '1h' in data_dict and data_dict['1h'] is not None and len(data_dict['1h']) > 14:
@@ -598,10 +565,8 @@ class FuturesCryptoTradingBot:
                          elif vol_ratio < 0.7:
                               analysis_results['volatility_regime'] = 'low'
                          # else: остается normal
-
             # --- 4. Расчет общего счета согласия ---
             score = 50 # Базовый счет
-
             # Добавляем баллы за согласованный тренд
             if analysis_results['trend_consistency'] == 'strong_long':
                 score += 15
@@ -611,7 +576,6 @@ class FuturesCryptoTradingBot:
                 score -= 15
             elif analysis_results['trend_consistency'] == 'short':
                 score -= 7
-
             # Добавляем баллы за согласованный импульс
             if analysis_results['momentum_alignment'] == 'aligned_long':
                 score += 10
@@ -619,17 +583,13 @@ class FuturesCryptoTradingBot:
                 score -= 10
             elif analysis_results['momentum_alignment'] == 'divergent':
                 score -= 5 # Штраф за расхождение
-
             # Учитываем волатильность (без изменения счета, но можно использовать позже)
             # Например, очень высокая волатильность может снижать уверенность,
             # а очень низкая может указывать на отсутствие движения.
-
             # Ограничиваем счет между 0 и 100
             analysis_results['timeframe_agreement_score'] = max(0, min(100, int(score)))
-
         except Exception as e:
             logger.error(f"Ошибка в calculate_multitimeframe_analysis: {e}")
-
         return analysis_results
 
     def calculate_dynamic_levels(self, symbol, data_dict, signal_type):
@@ -724,6 +684,7 @@ class FuturesCryptoTradingBot:
         except Exception as e:
             logger.error(f"Ошибка расчета динамических уровней для {symbol}: {e}")
             return None # Возвращаем None в случае ошибки
+
     def calculate_basic_levels(self, symbol, data_dict, signal_type):
         """Базовые уровни на случай ошибок"""
         try:
@@ -756,6 +717,7 @@ class FuturesCryptoTradingBot:
                 return 990.0, 1005.0, 1015.0, 1025.0
             else:
                 return 1010.0, 995.0, 985.0, 975.0
+
     # Улучшенная версия метода generate_signal
     def generate_signal(self, symbol, data_dict, multitimeframe_analysis=None):
         """Генерация торгового сигнала с динамическими уровнями"""
@@ -890,7 +852,6 @@ class FuturesCryptoTradingBot:
                 elif selected_score >= 4: # 4 из 8
                     signal_strength = 2
                 # signal_strength 1 для счетчиков < 4 уже не применяется, так как сигнал не генерируется
-
             # --- ИНТЕГРАЦИЯ АНАЛИЗА МНОГИХ ТАЙМФРЕЙМОВ ---
             # Порог уверенности 60% (проверяется после выбора типа сигнала)
             # Проверяем signal_strength >= 4 вместо порога 3
@@ -899,13 +860,11 @@ class FuturesCryptoTradingBot:
                 if multitimeframe_analysis:
                     mt_analysis_score = multitimeframe_analysis.get('timeframe_agreement_score', 50)
                     mt_trend_consistency = multitimeframe_analysis.get('trend_consistency', 'neutral')
-
                     # Корректируем уверенность на основе анализа таймфреймов
                     if mt_analysis_score >= 70:
                         confidence_score *= 1.1 # +10% уверенности
                     elif mt_analysis_score <= 30:
                         confidence_score *= 0.9 # -10% уверенности
-
                     # Корректируем силу сигнала на основе согласованности тренда
                     if signal_type == 'LONG' and mt_trend_consistency in ['strong_long', 'long']:
                         signal_strength = min(5, signal_strength + 1) # Увеличиваем силу, максимум 5
@@ -915,9 +874,7 @@ class FuturesCryptoTradingBot:
                         signal_strength = max(1, signal_strength - 1) # Уменьшаем силу, минимум 1
                     elif signal_type == 'SHORT' and mt_trend_consistency in ['strong_long', 'long']:
                         signal_strength = max(1, signal_strength - 1)
-
                     confidence_score = max(0, min(100, confidence_score)) # Ограничиваем уверенность
-
                 # Обнаружение паттернов свечей
                 patterns = self.detect_advanced_candlestick_patterns(df_1h)
                 # Если найдены сильные паттерны, увеличиваем силу сигнала
@@ -995,6 +952,7 @@ class FuturesCryptoTradingBot:
         except Exception as e:
             logger.error(f"Ошибка генерации сигнала для {symbol}: {e}")
         return None
+
     def get_current_price(self, symbol):
         """Получение текущей цены фьючерса"""
         try:
@@ -1003,7 +961,7 @@ class FuturesCryptoTradingBot:
         except Exception as e:
             logger.error(f"Ошибка получения цены фьючерса для {symbol}: {e}")
             return None
-        
+
     def check_active_trades(self):
         """Проверка статуса всех активных сделок"""
         trades_to_remove = []
@@ -1021,10 +979,8 @@ class FuturesCryptoTradingBot:
         """Проверка статуса конкретной сделки"""
         if symbol not in self.active_trades:
             return 'not_found'
-            
         trade = self.active_trades[symbol]
         current_price = self.get_current_price(symbol)
-        
         # --- НАЧАЛО: Изменения для отображения разницы в цене ---
         entry_price = float(trade['entry_price'])
         signal_type = trade['signal_type']
@@ -1043,17 +999,15 @@ class FuturesCryptoTradingBot:
             # Используем тот же формат, что и для цены (8 знаков)
             price_diff_info = f" | {sign}{price_diff_percent:.2f}% ({sign}{price_diff_abs:.8f})"
         # --- КОНЕЦ: Изменения для отображения разницы в цене ---
-
         # Обновленная строка лога с информацией о разнице
         if current_price is None:
             logger.info(f"👀 [{symbol}] Отслеживаю {signal_type} | Цена: недоступна | Вход: {entry_price} | Статус: {self.get_trade_status(trade)}")
         else:
             logger.info(f"👀 [{symbol}] Отслеживаю {signal_type} | Цена: {current_price} | Вход: {entry_price} | Статус: {self.get_trade_status(trade)}{price_diff_info}")
-
-        # Проверка TP и SL (логика остается прежней)
+        # Проверка TP и SL
         tp_levels = [float(trade['tp1']), float(trade['tp2']), float(trade['tp3'])]
         tp_names = ['TP1', 'TP2', 'TP3']
-        status_changed = False # Флаг для отслеживания изменений
+        # status_changed = False # Убираем, так как теперь логируем закрытия
         for i, (tp, tp_name) in enumerate(zip(tp_levels, tp_names)):
             if f'{tp_name.lower()}_reached' not in trade or not trade[f'{tp_name.lower()}_reached']:
                 reached = False
@@ -1063,16 +1017,36 @@ class FuturesCryptoTradingBot:
                     reached = True
                 if reached:
                     trade[f'{tp_name.lower()}_reached'] = True
-                    status_changed = True # Статус изменился
+                    # status_changed = True # Убираем
                     logger.info(f"🎯 [{symbol}] --- Take Profit {i+1} достигнут @ {tp} ---")
+
+                    # --- НОВОЕ: Запись события TP в лог закрытий ---
+                    closure_info = {
+                        'symbol': symbol,
+                        'signal_type': signal_type,
+                        'entry_time': trade.get('timestamp', datetime.now().isoformat()), # Используем время сигнала или текущее
+                        'entry_price': entry_price,
+                        'exit_time': datetime.now().isoformat(),
+                        'exit_price': tp,
+                        'level': tp_name,
+                        'price_diff': tp - entry_price if signal_type == 'LONG' else entry_price - tp
+                    }
+                    self.trade_closures_log.append(self.convert_to_serializable(closure_info))
+                    self.save_state() # Сохраняем новое событие
+                    self.update_trade_closures_csv() # Обновляем CSV
+                    logger.debug(f"Добавлена запись о закрытии TP для {symbol}")
+                    # --- КОНЕЦ НОВОГО ---
+
                     if tp_name == 'TP3':
                         logger.info(f"🎉 [{symbol}] СДЕЛКА ЗАКРЫТА по Take Profit 3 @ {tp}")
-                        self.save_state()
-                        # --- Обновляем CSV лог при закрытии сделки ---
-                        self.update_signals_csv()
-                        self.save_signals_log() # Обновляем и JSON
-                        # ---
-                        return 'closed'
+                        # self.save_state() # Уже сохранено выше
+                        # self.update_signals_csv() # Убираем
+                        # self.save_signals_log() # Обновляем и JSON - можно оставить, если нужен JSON
+                        # --- ИЗМЕНЕНИЯ: Обновляем JSON лог сигналов и CSV закрытий ---
+                        self.save_signals_log() # Обновляем JSON лог сигналов
+                        # self.update_trade_closures_csv() # Уже вызвано выше
+                        # --- КОНЕЦ ИЗМЕНЕНИЙ ---
+                        return 'closed' # Сделка закрывается при TP3
 
         sl = float(trade['sl'])
         sl_reached = False
@@ -1082,23 +1056,41 @@ class FuturesCryptoTradingBot:
             sl_reached = True
         if sl_reached:
             trade['sl_reached'] = True
-            status_changed = True # Статус изменился
+            # status_changed = True # Убираем
             logger.info(f"🛑 [{symbol}] СДЕЛКА ЗАКРЫТА по Stop Loss @ {sl}")
+
+            # --- НОВОЕ: Запись события SL в лог закрытий ---
+            closure_info = {
+                'symbol': symbol,
+                'signal_type': signal_type,
+                'entry_time': trade.get('timestamp', datetime.now().isoformat()),
+                'entry_price': entry_price,
+                'exit_time': datetime.now().isoformat(),
+                'exit_price': sl,
+                'level': 'SL',
+                'price_diff': sl - entry_price if signal_type == 'LONG' else entry_price - sl
+            }
+            self.trade_closures_log.append(self.convert_to_serializable(closure_info))
             self.save_state()
-            # --- Обновляем CSV лог при закрытии сделки ---
-            self.update_signals_csv()
-            self.save_signals_log() # Обновляем и JSON
-            # ---
-            return 'closed'
-            
-        # --- Если статус изменился (например, TP1 или TP2 достигнут), обновляем CSV ---
-        if status_changed:
-             self.update_signals_csv()
-             self.save_signals_log() # Обновляем и JSON
+            self.update_trade_closures_csv() # Обновляем CSV
+            logger.debug(f"Добавлена запись о закрытии SL для {symbol}")
+            # --- КОНЕЦ НОВОГО ---
+
+            # self.save_state() # Уже сохранено выше
+            # self.update_signals_csv() # Убираем
+            # --- ИЗМЕНЕНИЯ: Обновляем JSON лог сигналов и CSV закрытий ---
+            self.save_signals_log() # Обновляем JSON лог сигналов
+            # self.update_trade_closures_csv() # Уже вызвано выше
+            # --- КОНЕЦ ИЗМЕНЕНИЙ ---
+            return 'closed' # Сделка закрывается при SL
+
+        # --- Убираем обновление CSV для активных сделок ---
+        # if status_changed:
+        #      self.update_signals_csv()
+        #      self.save_signals_log() # Обновляем и JSON
         # ---
-             
         return 'active'
-    
+
     def get_trade_status(self, trade):
         """Получение статуса сделки"""
         if trade.get('tp3_reached', False):
@@ -1111,23 +1103,19 @@ class FuturesCryptoTradingBot:
             return 'hit SL'
         else:
             return 'active'
-    
+
     def send_signal(self, signal):
         """Отправка торгового сигнала и добавление сделки в активные"""
         if signal is None:
             return
-
         symbol = signal['symbol']
-
         # Проверяем, есть ли уже активная сделка по этой паре.
         if symbol in self.active_trades:
              return # Просто выходим из функции
-
         # --- Формирование и логирование сигнала (без изменений) ---
         self.signal_history[symbol].append(self.convert_to_serializable(signal))
         if len(self.signal_history[symbol]) > 50:
             self.signal_history[symbol] = self.signal_history[symbol][-25:]
-            
         signal_log_entry = {
             'timestamp': signal['timestamp'],
             'symbol': signal['symbol'],
@@ -1151,55 +1139,80 @@ class FuturesCryptoTradingBot:
         if signal.get('patterns'):
             logger.info(f"   🔍 Паттерны: {', '.join(signal['patterns'])}")
         # --- Конец формирования и логирования ---
-
         # --- Добавляем сделку в активные (без изменений) ---
         self.active_trades[signal['symbol']] = self.convert_to_serializable(signal).copy()
         for tp_name in ['tp1', 'tp2', 'tp3']:
             self.active_trades[signal['symbol']][f'{tp_name}_reached'] = False
         self.active_trades[signal['symbol']]['sl_reached'] = False
         self.save_state()
-        
         # --- Обновляем CSV лог при открытии новой сделки ---
         # Вызываем обновление CSV, чтобы новая сделка появилась в файле
-        self.update_signals_csv() 
+        # self.update_signals_csv() # Убираем
         # Также сохраняем полный JSON лог
         self.save_signals_log() 
 
-    def update_signals_csv(self):
-        """Обновление CSV лога активных сделок с их текущим статусом"""
+    # --- УБРАНО: Старый метод update_signals_csv ---
+    # def update_signals_csv(self):
+    #     """Обновление CSV лога активных сделок с их текущим статусом"""
+    #     try:
+    #         if not self.active_trades:
+    #              # Если активных сделок нет, создаем/перезаписываем пустой CSV с заголовками
+    #              df_empty = pd.DataFrame(columns=[
+    #                  'symbol', 'signal_type', 'entry_price', 'potential_upside',
+    #                  'signal_strength', 'patterns', 'status', 'last_updated'
+    #              ])
+    #              df_empty.to_csv('signals_log.csv', index=False)
+    #              logger.debug("signals_log.csv обновлен: Нет активных сделок, создан пустой файл.")
+    #              return
+    #         csv_data = []
+    #         for symbol, trade in self.active_trades.items():
+    #             # Собираем данные для CSV
+    #             csv_entry = {
+    #                 'symbol': symbol,
+    #                 'signal_type': trade.get('signal_type', 'N/A'),
+    #                 'entry_price': float(trade.get('entry_price', 0)),
+    #                 'potential_upside': float(trade.get('potential_upside', 0)),
+    #                 'signal_strength': int(trade.get('signal_strength', 0)),
+    #                 'patterns': ', '.join(trade.get('patterns', [])), # Преобразуем список в строку
+    #                 'status': self.get_trade_status(trade), # Получаем текущий статус (hit TP1/2/3, SL, active)
+    #                 'last_updated': datetime.now().isoformat() # Добавляем время последнего обновления
+    #             }
+    #             csv_data.append(csv_entry)
+    #         df = pd.DataFrame(csv_data)
+    #         # Записываем/перезаписываем CSV файл
+    #         df.to_csv('signals_log.csv', index=False)
+    #         logger.debug(f"signals_log.csv обновлен: {len(csv_data)} активных сделок.")
+    #     except Exception as e:
+    #         logger.error(f"Ошибка обновления signals_log.csv: {e}")
+
+    def update_trade_closures_csv(self):
+        """Обновление CSV лога закрытых сделок в формате лога сделок"""
         try:
-            if not self.active_trades:
-                 # Если активных сделок нет, создаем/перезаписываем пустой CSV с заголовками
-                 df_empty = pd.DataFrame(columns=[
-                     'symbol', 'signal_type', 'entry_price', 'potential_upside',
-                     'signal_strength', 'patterns', 'status', 'last_updated'
-                 ])
-                 df_empty.to_csv('signals_log.csv', index=False)
-                 logger.debug("signals_log.csv обновлен: Нет активных сделок, создан пустой файл.")
-                 return
+            # Открываем файл в режиме перезаписи
+            with open('signals_log.csv', 'w', newline='', encoding='utf-8') as csvfile:
+                # Если лог закрытий пуст, файл будет пустым
+                if not self.trade_closures_log:
+                     logger.debug("signals_log.csv обновлен: Нет записей о закрытиях.")
+                     return # Выходим, файл уже пустой
 
-            csv_data = []
-            for symbol, trade in self.active_trades.items():
-                # Собираем данные для CSV
-                csv_entry = {
-                    'symbol': symbol,
-                    'signal_type': trade.get('signal_type', 'N/A'),
-                    'entry_price': float(trade.get('entry_price', 0)),
-                    'potential_upside': float(trade.get('potential_upside', 0)),
-                    'signal_strength': int(trade.get('signal_strength', 0)),
-                    'patterns': ', '.join(trade.get('patterns', [])), # Преобразуем список в строку
-                    'status': self.get_trade_status(trade), # Получаем текущий статус (hit TP1/2/3, SL, active)
-                    'last_updated': datetime.now().isoformat() # Добавляем время последнего обновления
-                }
-                csv_data.append(csv_entry)
+                # Записываем все накопленные записи
+                for closure in self.trade_closures_log:
+                     # Форматируем строку: symbol,signal_type,entry_time,entry_price,exit_time,exit_price,level,price_diff
+                     line = (
+                         f"{closure['symbol']},"
+                         f"{closure['signal_type']},"
+                         f"{closure['entry_time']},"
+                         f"{closure['entry_price']:.8f}," # Формат цены входа
+                         f"{closure['exit_time']},"
+                         f"{closure['exit_price']:.8f},"  # Формат цены выхода
+                         f"{closure['level']},"
+                         f"{'+' if closure['price_diff'] >= 0 else ''}{closure['price_diff']:.8f}\n" # Формат разницы с знаком
+                     )
+                     csvfile.write(line)
 
-            df = pd.DataFrame(csv_data)
-            # Записываем/перезаписываем CSV файл
-            df.to_csv('signals_log.csv', index=False)
-            logger.debug(f"signals_log.csv обновлен: {len(csv_data)} активных сделок.")
-
+            logger.debug(f"signals_log.csv обновлен: {len(self.trade_closures_log)} записей о закрытиях.")
         except Exception as e:
-            logger.error(f"Ошибка обновления signals_log.csv: {e}")
+            logger.error(f"Ошибка обновления signals_log.csv (закрытия): {e}")
 
     def save_signals_log(self):
         """Сохранение полного лога всех найденных сигналов в JSON"""
@@ -1213,16 +1226,14 @@ class FuturesCryptoTradingBot:
                     'stats': serializable_stats,
                     'generated_at': datetime.now().isoformat()
                 }, f, ensure_ascii=False, indent=2, default=str)
-            
             # logger.info("signals_log.json сохранен.") # Опционально, можно убрать
-            
-            # --- ВАЖНО: CSV теперь обновляется через update_signals_csv ---
+            # --- ВАЖНО: CSV теперь обновляется через update_trade_closures_csv ---
             # Вызываем обновление CSV при каждом сохранении лога (например, после цикла анализа или изменения статуса)
             # Это гарантирует, что CSV всегда отражает актуальное состояние активных сделок.
             # self.update_signals_csv() # Лучше вызывать вручную в нужных местах, чем здесь
-            
         except Exception as e:
             logger.error(f"Ошибка сохранения лога сигналов (JSON): {e}")
+
     # Исправленный метод process_symbol
     def process_symbol(self, symbol):
         """Обработка одного символа"""
@@ -1245,6 +1256,7 @@ class FuturesCryptoTradingBot:
         except Exception as e:
             logger.error(f"Ошибка обработки {symbol}: {e}")
             return None
+
     def run_analysis_cycle(self):
         """Запуск одного цикла анализа"""
         cycle_start_time = datetime.now()
@@ -1269,6 +1281,7 @@ class FuturesCryptoTradingBot:
         logger.info(f"✅ Цикл анализа завершен за {cycle_duration.total_seconds():.1f} секунд")
         logger.info(f"📊 Обработано {processed_count} пар. Найдено {len(signals)} сигналов.")
         self.save_state()
+
     def run(self):
         """Основной цикл работы бота"""
         logger.info("🚀 Запуск фьючерсного криптотрейдинг бота...")
@@ -1301,6 +1314,7 @@ class FuturesCryptoTradingBot:
                 logger.error(f"❌ Критическая ошибка в основном цикле: {e}")
                 self.save_state()
                 time.sleep(60)
+
 # Использование бота
 if __name__ == "__main__":
     bot = FuturesCryptoTradingBot()

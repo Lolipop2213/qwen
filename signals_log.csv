@@ -1,4 +1,0 @@
-timestamp,symbol,signal_type,entry_price,tp1,tp2,tp3,sl,confidence,rr_ratio,potential_upside,signal_strength,patterns
-2025-08-06T13:46:01.098082,FLOW/USDT,SHORT,0.353,0.34966443,0.34680537,0.34346979,0.35725423,62.5,1.6,2.7,3.0,"['spinning_top', 'tweezer_bottoms']"
-2025-08-07T10:24:56.081612,STRK/USDT,LONG,0.1231,0.12396073,0.12451648,0.12445254,0.12209198,68.75,1.22,1.1,4.0,['three_white_soldiers']
-2025-08-07T10:34:43.089109,FLOW/USDT,LONG,0.366,0.36816184,0.37032369,0.36959442,0.36311307,68.75,1.2,0.98,4.0,['morning_star']
