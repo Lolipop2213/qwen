@@ -785,24 +785,6 @@ class FuturesCryptoTradingBot:
             confidence_score = 0
             long_score = sum(1 for cond in long_conditions if cond)
             short_score = sum(1 for cond in short_conditions if cond)
-            # Сила сигнала (1-5)
-            signal_strength = 0
-            total_conditions = len(long_conditions) if long_score >= short_score else len(short_conditions)
-            if total_conditions > 0:
-                max_score = max(long_score, short_score)
-                if max_score >= 7: # 7 из 8
-                    signal_strength = 5
-                elif max_score >= 6: # 6 из 8
-                    signal_strength = 4
-                elif max_score >= 5: # 5 из 8
-                    signal_strength = 3
-                elif max_score >= 4: # 4 из 8
-                    signal_strength = 2
-                # signal_strength 1 для счетчиков < 4 уже не применяется, так как сигнал не генерируется
-            # Проверяем, разрешены ли SHORT сигналы
-            if not self.risk_params['use_short_signals']:
-                short_score = 0
-                short_conditions = []
             # --- ИСПРАВЛЕННАЯ ЛОГИКА ВЫБОРА ЛУЧШЕГО СИГНАЛА ---
             # Сначала вычисляем оба счетчика
             long_score = sum(1 for cond in long_conditions if cond) # Считаем количество выполненных условий
@@ -855,7 +837,7 @@ class FuturesCryptoTradingBot:
             # --- ИНТЕГРАЦИЯ АНАЛИЗА МНОГИХ ТАЙМФРЕЙМОВ ---
             # Порог уверенности 60% (проверяется после выбора типа сигнала)
             # Проверяем signal_strength >= 4 вместо порога 3
-            if signal_type and confidence_score >= 60 and signal_strength >= 3: 
+            if signal_type and confidence_score >= 60 and signal_strength >= 4: 
                 # --- ИНТЕГРАЦИЯ: Использование multitimeframe_analysis ---
                 if multitimeframe_analysis:
                     mt_analysis_score = multitimeframe_analysis.get('timeframe_agreement_score', 50)

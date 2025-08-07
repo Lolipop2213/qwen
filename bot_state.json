@@ -1,0 +1,12 @@
+{
+  "active_trades": {},
+  "signal_history": {},
+  "signals_found": [],
+  "analysis_stats": {
+    "total_analyzed": 263.0,
+    "signals_generated": 0.0,
+    "start_time": "2025-08-07T14:36:36.539208"
+  },
+  "trade_closures_log": [],
+  "saved_at": "2025-08-07T14:46:25.861232"
+}
