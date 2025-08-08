@@ -1,9 +1,27 @@
 {
-  "signals": [],
+  "signals": [
+    {
+      "timestamp": "2025-08-08T06:54:59.198434",
+      "symbol": "APT/USDT",
+      "signal_type": "LONG",
+      "entry_price": 4.5785,
+      "tp1": 4.71621994,
+      "tp2": 4.81950989,
+      "tp3": 4.95722983,
+      "sl": 4.50412105,
+      "confidence": 68.75,
+      "rr_ratio": 5.09,
+      "potential_upside": 8.27,
+      "signal_strength": 4.0,
+      "patterns": [
+        "morning_star"
+      ]
+    }
+  ],
   "stats": {
-    "total_analyzed": 263.0,
-    "signals_generated": 0.0,
-    "start_time": "2025-08-07T14:36:36.539208"
+    "total_analyzed": 2253.0,
+    "signals_generated": 1.0,
+    "start_time": "2025-08-08T06:31:46.008732"
   },
-  "generated_at": "2025-08-07T14:46:25.861909"
+  "generated_at": "2025-08-08T07:32:56.310295"
 }
