@@ -1,36 +1,204 @@
 {
   "active_trades": {
-    "APT/USDT": {
-      "symbol": "APT/USDT",
+    "VET/USDT": {
+      "symbol": "VET/USDT",
       "signal_type": "LONG",
-      "entry_price": 4.5785,
-      "tp1": 4.71621994,
-      "tp2": 4.81950989,
-      "tp3": 4.95722983,
-      "sl": 4.50412105,
-      "confidence": 68.75,
-      "risk_reward_ratio": 5.09,
-      "potential_upside": 8.27,
-      "signal_strength": 4.0,
+      "entry_price": 0.024202,
+      "tp1": 0.02473301,
+      "tp2": 0.02513126,
+      "tp3": 0.02566227,
+      "sl": 0.02386821,
+      "confidence": 50.0,
+      "risk_reward_ratio": 3.37,
+      "potential_upside": 6.03,
+      "signal_strength": 3.0,
       "patterns": [
-        "morning_star"
+        "bullish_harami",
+        "inside_bar"
       ],
       "timeframe_analysis": {
-        "5m_momentum": 0.000743,
-        "15m_momentum": 0.006817,
-        "1h_momentum": 0.013346,
-        "1h_trend": 0.059715,
-        "4h_trend": 0.064699
+        "5m_momentum": 0.004065,
+        "15m_momentum": -0.002308,
+        "1h_momentum": -0.007586,
+        "1h_trend": 0.018003,
+        "4h_trend": 0.027686
       },
       "technical_analysis": {
-        "rsi": 83.58,
-        "stoch_k": 90.44,
-        "macd": 0.06950404,
-        "bb_position": 1.01,
-        "volume_ratio": 1.49,
-        "tp3_distance_in_atr5": 1.37
+        "rsi": 51.73,
+        "stoch_k": 20.68,
+        "macd": 8.245e-05,
+        "bb_position": 0.33,
+        "volume_ratio": 0.29,
+        "tp3_distance_in_atr5": 1.18
       },
-      "timestamp": "2025-08-08T06:54:59.198434",
+      "timestamp": "2025-08-08T13:14:33.466919",
+      "conditions_met": {
+        "long_score": 4.0,
+        "short_score": 2.0,
+        "total_conditions": 8.0
+      },
+      "tp1_reached": false,
+      "tp2_reached": false,
+      "tp3_reached": false,
+      "sl_reached": false
+    },
+    "APE/USDT": {
+      "symbol": "APE/USDT",
+      "signal_type": "LONG",
+      "entry_price": 0.6166,
+      "tp1": 0.63068026,
+      "tp2": 0.64124045,
+      "tp3": 0.65532071,
+      "sl": 0.60777892,
+      "confidence": 50.0,
+      "risk_reward_ratio": 4.34,
+      "potential_upside": 6.28,
+      "signal_strength": 3.0,
+      "patterns": [
+        "bullish_harami",
+        "tweezer_bottoms",
+        "inside_bar"
+      ],
+      "timeframe_analysis": {
+        "5m_momentum": 0.001299,
+        "15m_momentum": -0.005644,
+        "1h_momentum": 0.000649,
+        "1h_trend": 0.053657,
+        "4h_trend": 0.076279
+      },
+      "technical_analysis": {
+        "rsi": 71.53,
+        "stoch_k": 83.37,
+        "macd": 0.00865755,
+        "bb_position": 0.81,
+        "volume_ratio": 0.1,
+        "tp3_distance_in_atr5": 1.19
+      },
+      "timestamp": "2025-08-08T13:14:48.912313",
+      "conditions_met": {
+        "long_score": 4.0,
+        "short_score": 4.0,
+        "total_conditions": 8.0
+      },
+      "tp1_reached": false,
+      "tp2_reached": false,
+      "tp3_reached": false,
+      "sl_reached": false
+    },
+    "ENJ/USDT": {
+      "symbol": "ENJ/USDT",
+      "signal_type": "LONG",
+      "entry_price": 0.07272,
+      "tp1": 0.0744,
+      "tp2": 0.07567,
+      "tp3": 0.07735,
+      "sl": 0.0716,
+      "confidence": 50.0,
+      "risk_reward_ratio": 3.8,
+      "potential_upside": 6.37,
+      "signal_strength": 3.0,
+      "patterns": [
+        "bullish_harami",
+        "inside_bar"
+      ],
+      "timeframe_analysis": {
+        "5m_momentum": 0.006786,
+        "15m_momentum": 0.008602,
+        "1h_momentum": 0.004975,
+        "1h_trend": 0.043329,
+        "4h_trend": 0.012249
+      },
+      "technical_analysis": {
+        "rsi": 60.39,
+        "stoch_k": 85.42,
+        "macd": 0.00045086,
+        "bb_position": 0.78,
+        "volume_ratio": 0.93,
+        "tp3_distance_in_atr5": 1.11
+      },
+      "timestamp": "2025-08-08T13:45:16.001724",
+      "conditions_met": {
+        "long_score": 4.0,
+        "short_score": 2.0,
+        "total_conditions": 8.0
+      },
+      "tp1_reached": false,
+      "tp2_reached": false,
+      "tp3_reached": false,
+      "sl_reached": false
+    },
+    "ETH/USDT": {
+      "symbol": "ETH/USDT",
+      "signal_type": "LONG",
+      "entry_price": 3984.54,
+      "tp1": 4078.56,
+      "tp2": 4149.08,
+      "tp3": 4243.11,
+      "sl": 3933.14,
+      "confidence": 55.0,
+      "risk_reward_ratio": 5.03,
+      "potential_upside": 6.49,
+      "signal_strength": 3.0,
+      "patterns": [
+        "bullish_engulfing",
+        "tweezer_bottoms",
+        "outside_bar"
+      ],
+      "timeframe_analysis": {
+        "5m_momentum": 0.015111,
+        "15m_momentum": 0.02293,
+        "1h_momentum": 0.022742,
+        "1h_trend": 0.041527,
+        "4h_trend": 0.084943
+      },
+      "technical_analysis": {
+        "rsi": 70.45,
+        "stoch_k": 95.95,
+        "macd": 30.71057897,
+        "bb_position": 1.19,
+        "volume_ratio": 2.1,
+        "tp3_distance_in_atr5": 1.36
+      },
+      "timestamp": "2025-08-08T13:50:21.587586",
+      "conditions_met": {
+        "long_score": 4.0,
+        "short_score": 4.0,
+        "total_conditions": 8.0
+      },
+      "tp1_reached": false,
+      "tp2_reached": false,
+      "tp3_reached": false,
+      "sl_reached": false
+    },
+    "ATOM/USDT": {
+      "symbol": "ATOM/USDT",
+      "signal_type": "LONG",
+      "entry_price": 4.601,
+      "tp1": 4.714,
+      "tp2": 4.799,
+      "tp3": 4.913,
+      "sl": 4.536,
+      "confidence": 55.0,
+      "risk_reward_ratio": 4.79,
+      "potential_upside": 6.78,
+      "signal_strength": 4.0,
+      "patterns": [],
+      "timeframe_analysis": {
+        "5m_momentum": 0.003709,
+        "15m_momentum": 0.013662,
+        "1h_momentum": 0.01299,
+        "1h_trend": 0.057701,
+        "4h_trend": 0.074749
+      },
+      "technical_analysis": {
+        "rsi": 76.27,
+        "stoch_k": 94.59,
+        "macd": 0.04804708,
+        "bb_position": 1.02,
+        "volume_ratio": 1.11,
+        "tp3_distance_in_atr5": 1.3
+      },
+      "timestamp": "2025-08-08T13:50:35.692508",
       "conditions_met": {
         "long_score": 5.0,
         "short_score": 4.0,
@@ -40,44 +208,1500 @@
       "tp2_reached": false,
       "tp3_reached": false,
       "sl_reached": false
+    },
+    "TRX/USDT": {
+      "symbol": "TRX/USDT",
+      "signal_type": "LONG",
+      "entry_price": 0.33824,
+      "tp1": 0.34137,
+      "tp2": 0.34372,
+      "tp3": 0.34685,
+      "sl": 0.3362,
+      "confidence": 50.0,
+      "risk_reward_ratio": 4.02,
+      "potential_upside": 2.55,
+      "signal_strength": 3.0,
+      "patterns": [
+        "spinning_top",
+        "bearish_engulfing",
+        "outside_bar"
+      ],
+      "timeframe_analysis": {
+        "5m_momentum": -0.002095,
+        "15m_momentum": -0.002742,
+        "1h_momentum": 0.002549,
+        "1h_trend": -0.007774,
+        "4h_trend": 0.015156
+      },
+      "technical_analysis": {
+        "rsi": 50.82,
+        "stoch_k": 71.59,
+        "macd": -6.171e-05,
+        "bb_position": 0.49,
+        "volume_ratio": 1.1,
+        "tp3_distance_in_atr5": 1.14
+      },
+      "timestamp": "2025-08-08T13:50:39.614043",
+      "conditions_met": {
+        "long_score": 5.0,
+        "short_score": 4.0,
+        "total_conditions": 8.0
+      },
+      "tp1_reached": false,
+      "tp2_reached": false,
+      "tp3_reached": false,
+      "sl_reached": false
+    },
+    "ICP/USDT": {
+      "symbol": "ICP/USDT",
+      "signal_type": "LONG",
+      "entry_price": 5.407,
+      "tp1": 5.545,
+      "tp2": 5.648,
+      "tp3": 5.785,
+      "sl": 5.319,
+      "confidence": 50.0,
+      "risk_reward_ratio": 4.29,
+      "potential_upside": 6.99,
+      "signal_strength": 4.0,
+      "patterns": [],
+      "timeframe_analysis": {
+        "5m_momentum": 0.004646,
+        "15m_momentum": 0.013308,
+        "1h_momentum": 0.008769,
+        "1h_trend": 0.038609,
+        "4h_trend": 0.025014
+      },
+      "technical_analysis": {
+        "rsi": 64.48,
+        "stoch_k": 93.59,
+        "macd": 0.04030452,
+        "bb_position": 0.96,
+        "volume_ratio": 1.11,
+        "tp3_distance_in_atr5": 1.16
+      },
+      "timestamp": "2025-08-08T13:50:42.544557",
+      "conditions_met": {
+        "long_score": 5.0,
+        "short_score": 4.0,
+        "total_conditions": 8.0
+      },
+      "tp1_reached": false,
+      "tp2_reached": false,
+      "tp3_reached": false,
+      "sl_reached": false
+    },
+    "DOT/USDT": {
+      "symbol": "DOT/USDT",
+      "signal_type": "SHORT",
+      "entry_price": 3.931,
+      "tp1": 3.818,
+      "tp2": 3.732,
+      "tp3": 3.619,
+      "sl": 3.992,
+      "confidence": 60.0,
+      "risk_reward_ratio": 5.11,
+      "potential_upside": 7.94,
+      "signal_strength": 3.0,
+      "patterns": [
+        "bullish_engulfing"
+      ],
+      "timeframe_analysis": {
+        "5m_momentum": 0.0064,
+        "15m_momentum": 0.012883,
+        "1h_momentum": 0.0046,
+        "1h_trend": 0.051632,
+        "4h_trend": 0.063836
+      },
+      "technical_analysis": {
+        "rsi": 67.02,
+        "stoch_k": 88.73,
+        "macd": 0.03846501,
+        "bb_position": 0.84,
+        "volume_ratio": 1.14,
+        "tp3_distance_in_atr5": 1.38
+      },
+      "timestamp": "2025-08-08T13:56:18.769973",
+      "conditions_met": {
+        "long_score": 4.0,
+        "short_score": 6.0,
+        "total_conditions": 8.0
+      },
+      "tp1_reached": false,
+      "tp2_reached": false,
+      "tp3_reached": false,
+      "sl_reached": false
+    },
+    "UNI/USDT": {
+      "symbol": "UNI/USDT",
+      "signal_type": "SHORT",
+      "entry_price": 10.688,
+      "tp1": 10.332,
+      "tp2": 10.064,
+      "tp3": 9.708,
+      "sl": 10.874,
+      "confidence": 66.0,
+      "risk_reward_ratio": 5.27,
+      "potential_upside": 9.17,
+      "signal_strength": 3.0,
+      "patterns": [
+        "bullish_engulfing",
+        "outside_bar"
+      ],
+      "timeframe_analysis": {
+        "5m_momentum": 0.006973,
+        "15m_momentum": 0.018875,
+        "1h_momentum": 0.009922,
+        "1h_trend": 0.060107,
+        "4h_trend": 0.081562
+      },
+      "technical_analysis": {
+        "rsi": 68.65,
+        "stoch_k": 87.16,
+        "macd": 0.1340558,
+        "bb_position": 0.92,
+        "volume_ratio": 1.38,
+        "tp3_distance_in_atr5": 1.42
+      },
+      "timestamp": "2025-08-08T13:56:22.798756",
+      "conditions_met": {
+        "long_score": 4.0,
+        "short_score": 6.0,
+        "total_conditions": 8.0
+      },
+      "tp1_reached": false,
+      "tp2_reached": false,
+      "tp3_reached": false,
+      "sl_reached": false
+    },
+    "STRK/USDT": {
+      "symbol": "STRK/USDT",
+      "signal_type": "LONG",
+      "entry_price": 0.1281,
+      "tp1": 0.1324,
+      "tp2": 0.1355,
+      "tp3": 0.1398,
+      "sl": 0.1256,
+      "confidence": 50.0,
+      "risk_reward_ratio": 4.5,
+      "potential_upside": 9.13,
+      "signal_strength": 3.0,
+      "patterns": [
+        "tweezer_bottoms"
+      ],
+      "timeframe_analysis": {
+        "5m_momentum": 0.015055,
+        "15m_momentum": 0.023163,
+        "1h_momentum": 0.009456,
+        "1h_trend": 0.05,
+        "4h_trend": 0.066611
+      },
+      "technical_analysis": {
+        "rsi": 61.13,
+        "stoch_k": 82.93,
+        "macd": 0.00110639,
+        "bb_position": 0.82,
+        "volume_ratio": 1.25,
+        "tp3_distance_in_atr5": 1.25
+      },
+      "timestamp": "2025-08-08T13:56:56.799594",
+      "conditions_met": {
+        "long_score": 4.0,
+        "short_score": 4.0,
+        "total_conditions": 8.0
+      },
+      "tp1_reached": false,
+      "tp2_reached": false,
+      "tp3_reached": false,
+      "sl_reached": false
+    },
+    "OP/USDT": {
+      "symbol": "OP/USDT",
+      "signal_type": "SHORT",
+      "entry_price": 0.7457,
+      "tp1": 0.7179,
+      "tp2": 0.697,
+      "tp3": 0.6692,
+      "sl": 0.7601,
+      "confidence": 66.0,
+      "risk_reward_ratio": 5.28,
+      "potential_upside": 10.26,
+      "signal_strength": 3.0,
+      "patterns": [],
+      "timeframe_analysis": {
+        "5m_momentum": 0.013319,
+        "15m_momentum": 0.022076,
+        "1h_momentum": 0.00893,
+        "1h_trend": 0.072795,
+        "4h_trend": 0.080916
+      },
+      "technical_analysis": {
+        "rsi": 69.88,
+        "stoch_k": 96.39,
+        "macd": 0.01125849,
+        "bb_position": 0.91,
+        "volume_ratio": 1.29,
+        "tp3_distance_in_atr5": 1.43
+      },
+      "timestamp": "2025-08-08T13:57:05.616787",
+      "conditions_met": {
+        "long_score": 4.0,
+        "short_score": 6.0,
+        "total_conditions": 8.0
+      },
+      "tp1_reached": false,
+      "tp2_reached": false,
+      "tp3_reached": false,
+      "sl_reached": false
+    },
+    "ARB/USDT": {
+      "symbol": "ARB/USDT",
+      "signal_type": "LONG",
+      "entry_price": 0.4267,
+      "tp1": 0.4404,
+      "tp2": 0.4507,
+      "tp3": 0.4644,
+      "sl": 0.4186,
+      "confidence": 50.0,
+      "risk_reward_ratio": 4.6,
+      "potential_upside": 8.84,
+      "signal_strength": 3.0,
+      "patterns": [
+        "tweezer_bottoms"
+      ],
+      "timeframe_analysis": {
+        "5m_momentum": 0.014986,
+        "15m_momentum": 0.023501,
+        "1h_momentum": 0.012097,
+        "1h_trend": 0.058284,
+        "4h_trend": 0.072631
+      },
+      "technical_analysis": {
+        "rsi": 65.49,
+        "stoch_k": 85.13,
+        "macd": 0.00447296,
+        "bb_position": 0.87,
+        "volume_ratio": 1.16,
+        "tp3_distance_in_atr5": 1.25
+      },
+      "timestamp": "2025-08-08T13:57:06.603695",
+      "conditions_met": {
+        "long_score": 4.0,
+        "short_score": 4.0,
+        "total_conditions": 8.0
+      },
+      "tp1_reached": false,
+      "tp2_reached": false,
+      "tp3_reached": false,
+      "sl_reached": false
+    },
+    "MANA/USDT": {
+      "symbol": "MANA/USDT",
+      "signal_type": "LONG",
+      "entry_price": 0.3007,
+      "tp1": 0.3085,
+      "tp2": 0.3143,
+      "tp3": 0.3221,
+      "sl": 0.2958,
+      "confidence": 50.0,
+      "risk_reward_ratio": 4.28,
+      "potential_upside": 7.12,
+      "signal_strength": 4.0,
+      "patterns": [],
+      "timeframe_analysis": {
+        "5m_momentum": -0.000665,
+        "15m_momentum": 0.005686,
+        "1h_momentum": 0.003672,
+        "1h_trend": 0.036897,
+        "4h_trend": 0.046277
+      },
+      "technical_analysis": {
+        "rsi": 63.87,
+        "stoch_k": 73.85,
+        "macd": 0.0028388,
+        "bb_position": 0.87,
+        "volume_ratio": 1.21,
+        "tp3_distance_in_atr5": 1.18
+      },
+      "timestamp": "2025-08-08T14:28:58.223462",
+      "conditions_met": {
+        "long_score": 5.0,
+        "short_score": 4.0,
+        "total_conditions": 8.0
+      },
+      "tp1_reached": false,
+      "tp2_reached": false,
+      "tp3_reached": false,
+      "sl_reached": false
+    },
+    "CHZ/USDT": {
+      "symbol": "CHZ/USDT",
+      "signal_type": "LONG",
+      "entry_price": 0.04164,
+      "tp1": 0.04255,
+      "tp2": 0.04324,
+      "tp3": 0.04415,
+      "sl": 0.04105,
+      "confidence": 55.0,
+      "risk_reward_ratio": 3.64,
+      "potential_upside": 6.03,
+      "signal_strength": 4.0,
+      "patterns": [
+        "spinning_top"
+      ],
+      "timeframe_analysis": {
+        "5m_momentum": 0.001443,
+        "15m_momentum": 0.008477,
+        "1h_momentum": 0.005311,
+        "1h_trend": 0.034791,
+        "4h_trend": 0.0397
+      },
+      "technical_analysis": {
+        "rsi": 65.78,
+        "stoch_k": 81.53,
+        "macd": 0.00036534,
+        "bb_position": 0.87,
+        "volume_ratio": 1.23,
+        "tp3_distance_in_atr5": 1.16
+      },
+      "timestamp": "2025-08-08T14:29:03.581353",
+      "conditions_met": {
+        "long_score": 5.0,
+        "short_score": 5.0,
+        "total_conditions": 8.0
+      },
+      "tp1_reached": false,
+      "tp2_reached": false,
+      "tp3_reached": false,
+      "sl_reached": false
+    },
+    "LINK/USDT": {
+      "symbol": "LINK/USDT",
+      "signal_type": "SHORT",
+      "entry_price": 19.549,
+      "tp1": 18.717,
+      "tp2": 18.093,
+      "tp3": 17.261,
+      "sl": 19.987,
+      "confidence": 60.0,
+      "risk_reward_ratio": 5.22,
+      "potential_upside": 11.7,
+      "signal_strength": 3.0,
+      "patterns": [],
+      "timeframe_analysis": {
+        "5m_momentum": 0.004161,
+        "15m_momentum": -0.013873,
+        "1h_momentum": 0.003182,
+        "1h_trend": 0.069069,
+        "4h_trend": 0.159156
+      },
+      "technical_analysis": {
+        "rsi": 67.17,
+        "stoch_k": 79.6,
+        "macd": 0.4605282,
+        "bb_position": 0.82,
+        "volume_ratio": 1.73,
+        "tp3_distance_in_atr5": 1.41
+      },
+      "timestamp": "2025-08-08T14:46:49.145439",
+      "conditions_met": {
+        "long_score": 4.0,
+        "short_score": 6.0,
+        "total_conditions": 8.0
+      },
+      "tp1_reached": false,
+      "tp2_reached": false,
+      "tp3_reached": false,
+      "sl_reached": false
+    },
+    "ENS/USDT": {
+      "symbol": "ENS/USDT",
+      "signal_type": "LONG",
+      "entry_price": 28.083,
+      "tp1": 29.019,
+      "tp2": 29.721,
+      "tp3": 30.657,
+      "sl": 27.532,
+      "confidence": 55.0,
+      "risk_reward_ratio": 4.67,
+      "potential_upside": 9.17,
+      "signal_strength": 4.0,
+      "patterns": [],
+      "timeframe_analysis": {
+        "5m_momentum": 0.007968,
+        "15m_momentum": -0.000534,
+        "1h_momentum": 0.014046,
+        "1h_trend": 0.028945,
+        "4h_trend": 0.054052
+      },
+      "technical_analysis": {
+        "rsi": 60.69,
+        "stoch_k": 61.09,
+        "macd": 0.23738117,
+        "bb_position": 0.93,
+        "volume_ratio": 2.36,
+        "tp3_distance_in_atr5": 1.26
+      },
+      "timestamp": "2025-08-08T14:47:40.715556",
+      "conditions_met": {
+        "long_score": 5.0,
+        "short_score": 2.0,
+        "total_conditions": 8.0
+      },
+      "tp1_reached": false,
+      "tp2_reached": false,
+      "tp3_reached": false,
+      "sl_reached": false
     }
   },
   "signal_history": {
-    "APT/USDT": [
+    "VET/USDT": [
       {
-        "symbol": "APT/USDT",
+        "symbol": "VET/USDT",
         "signal_type": "LONG",
-        "entry_price": 4.5785,
-        "tp1": 4.71621994,
-        "tp2": 4.81950989,
-        "tp3": 4.95722983,
-        "sl": 4.50412105,
-        "confidence": 68.75,
-        "risk_reward_ratio": 5.09,
-        "potential_upside": 8.27,
-        "signal_strength": 4.0,
+        "entry_price": 0.024202,
+        "tp1": 0.02473301,
+        "tp2": 0.02513126,
+        "tp3": 0.02566227,
+        "sl": 0.02386821,
+        "confidence": 50.0,
+        "risk_reward_ratio": 3.37,
+        "potential_upside": 6.03,
+        "signal_strength": 3.0,
         "patterns": [
-          "morning_star"
+          "bullish_harami",
+          "inside_bar"
         ],
         "timeframe_analysis": {
-          "5m_momentum": 0.000743,
-          "15m_momentum": 0.006817,
-          "1h_momentum": 0.013346,
-          "1h_trend": 0.059715,
-          "4h_trend": 0.064699
+          "5m_momentum": 0.004065,
+          "15m_momentum": -0.002308,
+          "1h_momentum": -0.007586,
+          "1h_trend": 0.018003,
+          "4h_trend": 0.027686
         },
         "technical_analysis": {
-          "rsi": 83.58,
-          "stoch_k": 90.44,
-          "macd": 0.06950404,
-          "bb_position": 1.01,
-          "volume_ratio": 1.49,
-          "tp3_distance_in_atr5": 1.37
+          "rsi": 51.73,
+          "stoch_k": 20.68,
+          "macd": 8.245e-05,
+          "bb_position": 0.33,
+          "volume_ratio": 0.29,
+          "tp3_distance_in_atr5": 1.18
         },
-        "timestamp": "2025-08-08T06:54:59.198434",
+        "timestamp": "2025-08-08T13:14:33.466919",
+        "conditions_met": {
+          "long_score": 4.0,
+          "short_score": 2.0,
+          "total_conditions": 8.0
+        }
+      }
+    ],
+    "APE/USDT": [
+      {
+        "symbol": "APE/USDT",
+        "signal_type": "LONG",
+        "entry_price": 0.6166,
+        "tp1": 0.63068026,
+        "tp2": 0.64124045,
+        "tp3": 0.65532071,
+        "sl": 0.60777892,
+        "confidence": 50.0,
+        "risk_reward_ratio": 4.34,
+        "potential_upside": 6.28,
+        "signal_strength": 3.0,
+        "patterns": [
+          "bullish_harami",
+          "tweezer_bottoms",
+          "inside_bar"
+        ],
+        "timeframe_analysis": {
+          "5m_momentum": 0.001299,
+          "15m_momentum": -0.005644,
+          "1h_momentum": 0.000649,
+          "1h_trend": 0.053657,
+          "4h_trend": 0.076279
+        },
+        "technical_analysis": {
+          "rsi": 71.53,
+          "stoch_k": 83.37,
+          "macd": 0.00865755,
+          "bb_position": 0.81,
+          "volume_ratio": 0.1,
+          "tp3_distance_in_atr5": 1.19
+        },
+        "timestamp": "2025-08-08T13:14:48.912313",
+        "conditions_met": {
+          "long_score": 4.0,
+          "short_score": 4.0,
+          "total_conditions": 8.0
+        }
+      }
+    ],
+    "ENJ/USDT": [
+      {
+        "symbol": "ENJ/USDT",
+        "signal_type": "LONG",
+        "entry_price": 0.07272,
+        "tp1": 0.0744,
+        "tp2": 0.07567,
+        "tp3": 0.07735,
+        "sl": 0.0716,
+        "confidence": 50.0,
+        "risk_reward_ratio": 3.8,
+        "potential_upside": 6.37,
+        "signal_strength": 3.0,
+        "patterns": [
+          "bullish_harami",
+          "inside_bar"
+        ],
+        "timeframe_analysis": {
+          "5m_momentum": 0.006786,
+          "15m_momentum": 0.008602,
+          "1h_momentum": 0.004975,
+          "1h_trend": 0.043329,
+          "4h_trend": 0.012249
+        },
+        "technical_analysis": {
+          "rsi": 60.39,
+          "stoch_k": 85.42,
+          "macd": 0.00045086,
+          "bb_position": 0.78,
+          "volume_ratio": 0.93,
+          "tp3_distance_in_atr5": 1.11
+        },
+        "timestamp": "2025-08-08T13:45:16.001724",
+        "conditions_met": {
+          "long_score": 4.0,
+          "short_score": 2.0,
+          "total_conditions": 8.0
+        }
+      }
+    ],
+    "ETH/USDT": [
+      {
+        "symbol": "ETH/USDT",
+        "signal_type": "LONG",
+        "entry_price": 3984.54,
+        "tp1": 4078.56,
+        "tp2": 4149.08,
+        "tp3": 4243.11,
+        "sl": 3933.14,
+        "confidence": 55.0,
+        "risk_reward_ratio": 5.03,
+        "potential_upside": 6.49,
+        "signal_strength": 3.0,
+        "patterns": [
+          "bullish_engulfing",
+          "tweezer_bottoms",
+          "outside_bar"
+        ],
+        "timeframe_analysis": {
+          "5m_momentum": 0.015111,
+          "15m_momentum": 0.02293,
+          "1h_momentum": 0.022742,
+          "1h_trend": 0.041527,
+          "4h_trend": 0.084943
+        },
+        "technical_analysis": {
+          "rsi": 70.45,
+          "stoch_k": 95.95,
+          "macd": 30.71057897,
+          "bb_position": 1.19,
+          "volume_ratio": 2.1,
+          "tp3_distance_in_atr5": 1.36
+        },
+        "timestamp": "2025-08-08T13:50:21.587586",
+        "conditions_met": {
+          "long_score": 4.0,
+          "short_score": 4.0,
+          "total_conditions": 8.0
+        }
+      }
+    ],
+    "SOL/USDT": [
+      {
+        "symbol": "SOL/USDT",
+        "signal_type": "LONG",
+        "entry_price": 177.42,
+        "tp1": 181.22,
+        "tp2": 184.08,
+        "tp3": 187.88,
+        "sl": 175.1,
+        "confidence": 55.0,
+        "risk_reward_ratio": 4.51,
+        "potential_upside": 5.9,
+        "signal_strength": 4.0,
+        "patterns": [
+          "outside_bar"
+        ],
+        "timeframe_analysis": {
+          "5m_momentum": 0.007095,
+          "15m_momentum": 0.009273,
+          "1h_momentum": 0.004814,
+          "1h_trend": 0.045246,
+          "4h_trend": 0.038815
+        },
+        "technical_analysis": {
+          "rsi": 64.82,
+          "stoch_k": 88.65,
+          "macd": 1.56795781,
+          "bb_position": 0.85,
+          "volume_ratio": 1.36,
+          "tp3_distance_in_atr5": 1.22
+        },
+        "timestamp": "2025-08-08T13:50:23.518516",
         "conditions_met": {
           "long_score": 5.0,
           "short_score": 4.0,
+          "total_conditions": 8.0
+        }
+      }
+    ],
+    "ATOM/USDT": [
+      {
+        "symbol": "ATOM/USDT",
+        "signal_type": "LONG",
+        "entry_price": 4.601,
+        "tp1": 4.714,
+        "tp2": 4.799,
+        "tp3": 4.913,
+        "sl": 4.536,
+        "confidence": 55.0,
+        "risk_reward_ratio": 4.79,
+        "potential_upside": 6.78,
+        "signal_strength": 4.0,
+        "patterns": [],
+        "timeframe_analysis": {
+          "5m_momentum": 0.003709,
+          "15m_momentum": 0.013662,
+          "1h_momentum": 0.01299,
+          "1h_trend": 0.057701,
+          "4h_trend": 0.074749
+        },
+        "technical_analysis": {
+          "rsi": 76.27,
+          "stoch_k": 94.59,
+          "macd": 0.04804708,
+          "bb_position": 1.02,
+          "volume_ratio": 1.11,
+          "tp3_distance_in_atr5": 1.3
+        },
+        "timestamp": "2025-08-08T13:50:35.692508",
+        "conditions_met": {
+          "long_score": 5.0,
+          "short_score": 4.0,
+          "total_conditions": 8.0
+        }
+      }
+    ],
+    "TRX/USDT": [
+      {
+        "symbol": "TRX/USDT",
+        "signal_type": "LONG",
+        "entry_price": 0.33824,
+        "tp1": 0.34137,
+        "tp2": 0.34372,
+        "tp3": 0.34685,
+        "sl": 0.3362,
+        "confidence": 50.0,
+        "risk_reward_ratio": 4.02,
+        "potential_upside": 2.55,
+        "signal_strength": 3.0,
+        "patterns": [
+          "spinning_top",
+          "bearish_engulfing",
+          "outside_bar"
+        ],
+        "timeframe_analysis": {
+          "5m_momentum": -0.002095,
+          "15m_momentum": -0.002742,
+          "1h_momentum": 0.002549,
+          "1h_trend": -0.007774,
+          "4h_trend": 0.015156
+        },
+        "technical_analysis": {
+          "rsi": 50.82,
+          "stoch_k": 71.59,
+          "macd": -6.171e-05,
+          "bb_position": 0.49,
+          "volume_ratio": 1.1,
+          "tp3_distance_in_atr5": 1.14
+        },
+        "timestamp": "2025-08-08T13:50:39.614043",
+        "conditions_met": {
+          "long_score": 5.0,
+          "short_score": 4.0,
+          "total_conditions": 8.0
+        }
+      }
+    ],
+    "ICP/USDT": [
+      {
+        "symbol": "ICP/USDT",
+        "signal_type": "LONG",
+        "entry_price": 5.407,
+        "tp1": 5.545,
+        "tp2": 5.648,
+        "tp3": 5.785,
+        "sl": 5.319,
+        "confidence": 50.0,
+        "risk_reward_ratio": 4.29,
+        "potential_upside": 6.99,
+        "signal_strength": 4.0,
+        "patterns": [],
+        "timeframe_analysis": {
+          "5m_momentum": 0.004646,
+          "15m_momentum": 0.013308,
+          "1h_momentum": 0.008769,
+          "1h_trend": 0.038609,
+          "4h_trend": 0.025014
+        },
+        "technical_analysis": {
+          "rsi": 64.48,
+          "stoch_k": 93.59,
+          "macd": 0.04030452,
+          "bb_position": 0.96,
+          "volume_ratio": 1.11,
+          "tp3_distance_in_atr5": 1.16
+        },
+        "timestamp": "2025-08-08T13:50:42.544557",
+        "conditions_met": {
+          "long_score": 5.0,
+          "short_score": 4.0,
+          "total_conditions": 8.0
+        }
+      }
+    ],
+    "FET/USDT": [
+      {
+        "symbol": "FET/USDT",
+        "signal_type": "LONG",
+        "entry_price": 0.6978,
+        "tp1": 0.7148,
+        "tp2": 0.7276,
+        "tp3": 0.7446,
+        "sl": 0.687,
+        "confidence": 55.0,
+        "risk_reward_ratio": 4.29,
+        "potential_upside": 6.71,
+        "signal_strength": 3.0,
+        "patterns": [
+          "tweezer_bottoms"
+        ],
+        "timeframe_analysis": {
+          "5m_momentum": 0.009115,
+          "15m_momentum": 0.014398,
+          "1h_momentum": 0.010718,
+          "1h_trend": 0.023768,
+          "4h_trend": 0.052013
+        },
+        "technical_analysis": {
+          "rsi": 63.56,
+          "stoch_k": 91.84,
+          "macd": 0.00480735,
+          "bb_position": 1.11,
+          "volume_ratio": 1.11,
+          "tp3_distance_in_atr5": 1.17
+        },
+        "timestamp": "2025-08-08T13:51:14.652027",
+        "conditions_met": {
+          "long_score": 4.0,
+          "short_score": 4.0,
+          "total_conditions": 8.0
+        }
+      }
+    ],
+    "DOT/USDT": [
+      {
+        "symbol": "DOT/USDT",
+        "signal_type": "SHORT",
+        "entry_price": 3.931,
+        "tp1": 3.818,
+        "tp2": 3.732,
+        "tp3": 3.619,
+        "sl": 3.992,
+        "confidence": 60.0,
+        "risk_reward_ratio": 5.11,
+        "potential_upside": 7.94,
+        "signal_strength": 3.0,
+        "patterns": [
+          "bullish_engulfing"
+        ],
+        "timeframe_analysis": {
+          "5m_momentum": 0.0064,
+          "15m_momentum": 0.012883,
+          "1h_momentum": 0.0046,
+          "1h_trend": 0.051632,
+          "4h_trend": 0.063836
+        },
+        "technical_analysis": {
+          "rsi": 67.02,
+          "stoch_k": 88.73,
+          "macd": 0.03846501,
+          "bb_position": 0.84,
+          "volume_ratio": 1.14,
+          "tp3_distance_in_atr5": 1.38
+        },
+        "timestamp": "2025-08-08T13:56:18.769973",
+        "conditions_met": {
+          "long_score": 4.0,
+          "short_score": 6.0,
+          "total_conditions": 8.0
+        }
+      }
+    ],
+    "UNI/USDT": [
+      {
+        "symbol": "UNI/USDT",
+        "signal_type": "SHORT",
+        "entry_price": 10.688,
+        "tp1": 10.332,
+        "tp2": 10.064,
+        "tp3": 9.708,
+        "sl": 10.874,
+        "confidence": 66.0,
+        "risk_reward_ratio": 5.27,
+        "potential_upside": 9.17,
+        "signal_strength": 3.0,
+        "patterns": [
+          "bullish_engulfing",
+          "outside_bar"
+        ],
+        "timeframe_analysis": {
+          "5m_momentum": 0.006973,
+          "15m_momentum": 0.018875,
+          "1h_momentum": 0.009922,
+          "1h_trend": 0.060107,
+          "4h_trend": 0.081562
+        },
+        "technical_analysis": {
+          "rsi": 68.65,
+          "stoch_k": 87.16,
+          "macd": 0.1340558,
+          "bb_position": 0.92,
+          "volume_ratio": 1.38,
+          "tp3_distance_in_atr5": 1.42
+        },
+        "timestamp": "2025-08-08T13:56:22.798756",
+        "conditions_met": {
+          "long_score": 4.0,
+          "short_score": 6.0,
+          "total_conditions": 8.0
+        }
+      }
+    ],
+    "HBAR/USDT": [
+      {
+        "symbol": "HBAR/USDT",
+        "signal_type": "LONG",
+        "entry_price": 0.26445,
+        "tp1": 0.27222,
+        "tp2": 0.27804,
+        "tp3": 0.28581,
+        "sl": 0.25969,
+        "confidence": 50.0,
+        "risk_reward_ratio": 4.4,
+        "potential_upside": 8.08,
+        "signal_strength": 3.0,
+        "patterns": [
+          "bullish_engulfing"
+        ],
+        "timeframe_analysis": {
+          "5m_momentum": 0.009737,
+          "15m_momentum": 0.016998,
+          "1h_momentum": 0.007007,
+          "1h_trend": 0.061111,
+          "4h_trend": 0.062136
+        },
+        "technical_analysis": {
+          "rsi": 62.52,
+          "stoch_k": 77.56,
+          "macd": 0.00265459,
+          "bb_position": 0.73,
+          "volume_ratio": 1.1,
+          "tp3_distance_in_atr5": 1.21
+        },
+        "timestamp": "2025-08-08T13:56:34.927120",
+        "conditions_met": {
+          "long_score": 4.0,
+          "short_score": 3.0,
+          "total_conditions": 8.0
+        }
+      }
+    ],
+    "FLOW/USDT": [
+      {
+        "symbol": "FLOW/USDT",
+        "signal_type": "LONG",
+        "entry_price": 0.376,
+        "tp1": 0.385,
+        "tp2": 0.393,
+        "tp3": 0.402,
+        "sl": 0.37,
+        "confidence": 50.0,
+        "risk_reward_ratio": 4.26,
+        "potential_upside": 6.91,
+        "signal_strength": 3.0,
+        "patterns": [
+          "bullish_engulfing",
+          "outside_bar"
+        ],
+        "timeframe_analysis": {
+          "5m_momentum": 0.008043,
+          "15m_momentum": 0.013477,
+          "1h_momentum": 0.010753,
+          "1h_trend": 0.041551,
+          "4h_trend": 0.030137
+        },
+        "technical_analysis": {
+          "rsi": 62.84,
+          "stoch_k": 100.0,
+          "macd": 0.00248667,
+          "bb_position": 0.88,
+          "volume_ratio": 1.37,
+          "tp3_distance_in_atr5": 1.17
+        },
+        "timestamp": "2025-08-08T13:56:39.256238",
+        "conditions_met": {
+          "long_score": 4.0,
+          "short_score": 4.0,
+          "total_conditions": 8.0
+        }
+      }
+    ],
+    "THETA/USDT": [
+      {
+        "symbol": "THETA/USDT",
+        "signal_type": "LONG",
+        "entry_price": 0.8205,
+        "tp1": 0.8418,
+        "tp2": 0.8578,
+        "tp3": 0.8791,
+        "sl": 0.8071,
+        "confidence": 50.0,
+        "risk_reward_ratio": 4.34,
+        "potential_upside": 7.14,
+        "signal_strength": 3.0,
+        "patterns": [
+          "bullish_engulfing",
+          "tweezer_bottoms",
+          "outside_bar"
+        ],
+        "timeframe_analysis": {
+          "5m_momentum": 0.007615,
+          "15m_momentum": 0.016477,
+          "1h_momentum": 0.007738,
+          "1h_trend": 0.039002,
+          "4h_trend": 0.050045
+        },
+        "technical_analysis": {
+          "rsi": 63.49,
+          "stoch_k": 80.28,
+          "macd": 0.00591173,
+          "bb_position": 0.89,
+          "volume_ratio": 1.14,
+          "tp3_distance_in_atr5": 1.18
+        },
+        "timestamp": "2025-08-08T13:56:49.010570",
+        "conditions_met": {
+          "long_score": 4.0,
+          "short_score": 4.0,
+          "total_conditions": 8.0
+        }
+      }
+    ],
+    "JUP/USDT": [
+      {
+        "symbol": "JUP/USDT",
+        "signal_type": "LONG",
+        "entry_price": 0.5033,
+        "tp1": 0.5183,
+        "tp2": 0.5296,
+        "tp3": 0.5446,
+        "sl": 0.4938,
+        "confidence": 50.0,
+        "risk_reward_ratio": 4.3,
+        "potential_upside": 8.21,
+        "signal_strength": 3.0,
+        "patterns": [
+          "tweezer_bottoms"
+        ],
+        "timeframe_analysis": {
+          "5m_momentum": 0.007204,
+          "15m_momentum": 0.018009,
+          "1h_momentum": 0.007204,
+          "1h_trend": 0.041167,
+          "4h_trend": 0.036236
+        },
+        "technical_analysis": {
+          "rsi": 59.27,
+          "stoch_k": 72.62,
+          "macd": 0.00347003,
+          "bb_position": 0.85,
+          "volume_ratio": 1.17,
+          "tp3_distance_in_atr5": 1.17
+        },
+        "timestamp": "2025-08-08T13:56:52.916318",
+        "conditions_met": {
+          "long_score": 4.0,
+          "short_score": 4.0,
+          "total_conditions": 8.0
+        }
+      }
+    ],
+    "INJ/USDT": [
+      {
+        "symbol": "INJ/USDT",
+        "signal_type": "LONG",
+        "entry_price": 14.262,
+        "tp1": 14.722,
+        "tp2": 15.067,
+        "tp3": 15.528,
+        "sl": 13.976,
+        "confidence": 50.0,
+        "risk_reward_ratio": 4.43,
+        "potential_upside": 8.88,
+        "signal_strength": 3.0,
+        "patterns": [
+          "tweezer_bottoms"
+        ],
+        "timeframe_analysis": {
+          "5m_momentum": 0.011777,
+          "15m_momentum": 0.020243,
+          "1h_momentum": 0.016101,
+          "1h_trend": 0.051847,
+          "4h_trend": 0.047367
+        },
+        "technical_analysis": {
+          "rsi": 63.19,
+          "stoch_k": 93.44,
+          "macd": 0.13176309,
+          "bb_position": 0.88,
+          "volume_ratio": 1.25,
+          "tp3_distance_in_atr5": 1.19
+        },
+        "timestamp": "2025-08-08T13:56:54.858561",
+        "conditions_met": {
+          "long_score": 4.0,
+          "short_score": 3.0,
+          "total_conditions": 8.0
+        }
+      }
+    ],
+    "STRK/USDT": [
+      {
+        "symbol": "STRK/USDT",
+        "signal_type": "LONG",
+        "entry_price": 0.1281,
+        "tp1": 0.1324,
+        "tp2": 0.1355,
+        "tp3": 0.1398,
+        "sl": 0.1256,
+        "confidence": 50.0,
+        "risk_reward_ratio": 4.5,
+        "potential_upside": 9.13,
+        "signal_strength": 3.0,
+        "patterns": [
+          "tweezer_bottoms"
+        ],
+        "timeframe_analysis": {
+          "5m_momentum": 0.015055,
+          "15m_momentum": 0.023163,
+          "1h_momentum": 0.009456,
+          "1h_trend": 0.05,
+          "4h_trend": 0.066611
+        },
+        "technical_analysis": {
+          "rsi": 61.13,
+          "stoch_k": 82.93,
+          "macd": 0.00110639,
+          "bb_position": 0.82,
+          "volume_ratio": 1.25,
+          "tp3_distance_in_atr5": 1.25
+        },
+        "timestamp": "2025-08-08T13:56:56.799594",
+        "conditions_met": {
+          "long_score": 4.0,
+          "short_score": 4.0,
+          "total_conditions": 8.0
+        }
+      }
+    ],
+    "SEI/USDT": [
+      {
+        "symbol": "SEI/USDT",
+        "signal_type": "LONG",
+        "entry_price": 0.3132,
+        "tp1": 0.3223,
+        "tp2": 0.3292,
+        "tp3": 0.3384,
+        "sl": 0.3075,
+        "confidence": 55.0,
+        "risk_reward_ratio": 4.34,
+        "potential_upside": 8.05,
+        "signal_strength": 3.0,
+        "patterns": [
+          "tweezer_bottoms"
+        ],
+        "timeframe_analysis": {
+          "5m_momentum": 0.012609,
+          "15m_momentum": 0.023529,
+          "1h_momentum": 0.013264,
+          "1h_trend": 0.047492,
+          "4h_trend": 0.020195
+        },
+        "technical_analysis": {
+          "rsi": 63.01,
+          "stoch_k": 95.05,
+          "macd": 0.00235385,
+          "bb_position": 1.0,
+          "volume_ratio": 1.28,
+          "tp3_distance_in_atr5": 1.2
+        },
+        "timestamp": "2025-08-08T13:56:58.776643",
+        "conditions_met": {
+          "long_score": 4.0,
+          "short_score": 3.0,
+          "total_conditions": 8.0
+        }
+      }
+    ],
+    "PYTH/USDT": [
+      {
+        "symbol": "PYTH/USDT",
+        "signal_type": "LONG",
+        "entry_price": 0.12356,
+        "tp1": 0.1274,
+        "tp2": 0.13027,
+        "tp3": 0.13411,
+        "sl": 0.12123,
+        "confidence": 50.0,
+        "risk_reward_ratio": 4.34,
+        "potential_upside": 8.54,
+        "signal_strength": 3.0,
+        "patterns": [
+          "tweezer_bottoms"
+        ],
+        "timeframe_analysis": {
+          "5m_momentum": 0.010059,
+          "15m_momentum": 0.018555,
+          "1h_momentum": 0.006189,
+          "1h_trend": 0.04952,
+          "4h_trend": 0.055726
+        },
+        "technical_analysis": {
+          "rsi": 59.99,
+          "stoch_k": 70.71,
+          "macd": 0.0010095,
+          "bb_position": 0.75,
+          "volume_ratio": 1.36,
+          "tp3_distance_in_atr5": 1.22
+        },
+        "timestamp": "2025-08-08T13:56:59.745348",
+        "conditions_met": {
+          "long_score": 4.0,
+          "short_score": 3.0,
+          "total_conditions": 8.0
+        }
+      }
+    ],
+    "OP/USDT": [
+      {
+        "symbol": "OP/USDT",
+        "signal_type": "SHORT",
+        "entry_price": 0.7457,
+        "tp1": 0.7179,
+        "tp2": 0.697,
+        "tp3": 0.6692,
+        "sl": 0.7601,
+        "confidence": 66.0,
+        "risk_reward_ratio": 5.28,
+        "potential_upside": 10.26,
+        "signal_strength": 3.0,
+        "patterns": [],
+        "timeframe_analysis": {
+          "5m_momentum": 0.013319,
+          "15m_momentum": 0.022076,
+          "1h_momentum": 0.00893,
+          "1h_trend": 0.072795,
+          "4h_trend": 0.080916
+        },
+        "technical_analysis": {
+          "rsi": 69.88,
+          "stoch_k": 96.39,
+          "macd": 0.01125849,
+          "bb_position": 0.91,
+          "volume_ratio": 1.29,
+          "tp3_distance_in_atr5": 1.43
+        },
+        "timestamp": "2025-08-08T13:57:05.616787",
+        "conditions_met": {
+          "long_score": 4.0,
+          "short_score": 6.0,
+          "total_conditions": 8.0
+        }
+      }
+    ],
+    "ARB/USDT": [
+      {
+        "symbol": "ARB/USDT",
+        "signal_type": "LONG",
+        "entry_price": 0.4267,
+        "tp1": 0.4404,
+        "tp2": 0.4507,
+        "tp3": 0.4644,
+        "sl": 0.4186,
+        "confidence": 50.0,
+        "risk_reward_ratio": 4.6,
+        "potential_upside": 8.84,
+        "signal_strength": 3.0,
+        "patterns": [
+          "tweezer_bottoms"
+        ],
+        "timeframe_analysis": {
+          "5m_momentum": 0.014986,
+          "15m_momentum": 0.023501,
+          "1h_momentum": 0.012097,
+          "1h_trend": 0.058284,
+          "4h_trend": 0.072631
+        },
+        "technical_analysis": {
+          "rsi": 65.49,
+          "stoch_k": 85.13,
+          "macd": 0.00447296,
+          "bb_position": 0.87,
+          "volume_ratio": 1.16,
+          "tp3_distance_in_atr5": 1.25
+        },
+        "timestamp": "2025-08-08T13:57:06.603695",
+        "conditions_met": {
+          "long_score": 4.0,
+          "short_score": 4.0,
+          "total_conditions": 8.0
+        }
+      }
+    ],
+    "ETC/USDT": [
+      {
+        "symbol": "ETC/USDT",
+        "signal_type": "LONG",
+        "entry_price": 22.306,
+        "tp1": 22.998,
+        "tp2": 23.516,
+        "tp3": 24.208,
+        "sl": 21.919,
+        "confidence": 55.0,
+        "risk_reward_ratio": 4.91,
+        "potential_upside": 8.53,
+        "signal_strength": 4.0,
+        "patterns": [
+          "doji"
+        ],
+        "timeframe_analysis": {
+          "5m_momentum": 0.000853,
+          "15m_momentum": 0.031497,
+          "1h_momentum": 0.028875,
+          "1h_trend": 0.057557,
+          "4h_trend": 0.074315
+        },
+        "technical_analysis": {
+          "rsi": 74.07,
+          "stoch_k": 92.76,
+          "macd": 0.2952442,
+          "bb_position": 1.12,
+          "volume_ratio": 1.25,
+          "tp3_distance_in_atr5": 1.33
+        },
+        "timestamp": "2025-08-08T14:14:24.604057",
+        "conditions_met": {
+          "long_score": 5.0,
+          "short_score": 4.0,
+          "total_conditions": 8.0
+        }
+      }
+    ],
+    "MANA/USDT": [
+      {
+        "symbol": "MANA/USDT",
+        "signal_type": "LONG",
+        "entry_price": 0.3007,
+        "tp1": 0.3085,
+        "tp2": 0.3143,
+        "tp3": 0.3221,
+        "sl": 0.2958,
+        "confidence": 50.0,
+        "risk_reward_ratio": 4.28,
+        "potential_upside": 7.12,
+        "signal_strength": 4.0,
+        "patterns": [],
+        "timeframe_analysis": {
+          "5m_momentum": -0.000665,
+          "15m_momentum": 0.005686,
+          "1h_momentum": 0.003672,
+          "1h_trend": 0.036897,
+          "4h_trend": 0.046277
+        },
+        "technical_analysis": {
+          "rsi": 63.87,
+          "stoch_k": 73.85,
+          "macd": 0.0028388,
+          "bb_position": 0.87,
+          "volume_ratio": 1.21,
+          "tp3_distance_in_atr5": 1.18
+        },
+        "timestamp": "2025-08-08T14:28:58.223462",
+        "conditions_met": {
+          "long_score": 5.0,
+          "short_score": 4.0,
+          "total_conditions": 8.0
+        }
+      }
+    ],
+    "AXS/USDT": [
+      {
+        "symbol": "AXS/USDT",
+        "signal_type": "LONG",
+        "entry_price": 2.43,
+        "tp1": 2.492,
+        "tp2": 2.538,
+        "tp3": 2.6,
+        "sl": 2.391,
+        "confidence": 55.0,
+        "risk_reward_ratio": 4.35,
+        "potential_upside": 7.0,
+        "signal_strength": 4.0,
+        "patterns": [],
+        "timeframe_analysis": {
+          "5m_momentum": -0.000411,
+          "15m_momentum": 0.009136,
+          "1h_momentum": 0.006628,
+          "1h_trend": 0.033163,
+          "4h_trend": 0.042024
+        },
+        "technical_analysis": {
+          "rsi": 63.03,
+          "stoch_k": 69.05,
+          "macd": 0.02070244,
+          "bb_position": 0.91,
+          "volume_ratio": 1.44,
+          "tp3_distance_in_atr5": 1.18
+        },
+        "timestamp": "2025-08-08T14:28:59.654147",
+        "conditions_met": {
+          "long_score": 5.0,
+          "short_score": 3.0,
+          "total_conditions": 8.0
+        }
+      }
+    ],
+    "CHZ/USDT": [
+      {
+        "symbol": "CHZ/USDT",
+        "signal_type": "LONG",
+        "entry_price": 0.04164,
+        "tp1": 0.04255,
+        "tp2": 0.04324,
+        "tp3": 0.04415,
+        "sl": 0.04105,
+        "confidence": 55.0,
+        "risk_reward_ratio": 3.64,
+        "potential_upside": 6.03,
+        "signal_strength": 4.0,
+        "patterns": [
+          "spinning_top"
+        ],
+        "timeframe_analysis": {
+          "5m_momentum": 0.001443,
+          "15m_momentum": 0.008477,
+          "1h_momentum": 0.005311,
+          "1h_trend": 0.034791,
+          "4h_trend": 0.0397
+        },
+        "technical_analysis": {
+          "rsi": 65.78,
+          "stoch_k": 81.53,
+          "macd": 0.00036534,
+          "bb_position": 0.87,
+          "volume_ratio": 1.23,
+          "tp3_distance_in_atr5": 1.16
+        },
+        "timestamp": "2025-08-08T14:29:03.581353",
+        "conditions_met": {
+          "long_score": 5.0,
+          "short_score": 5.0,
+          "total_conditions": 8.0
+        }
+      }
+    ],
+    "LINK/USDT": [
+      {
+        "symbol": "LINK/USDT",
+        "signal_type": "SHORT",
+        "entry_price": 19.549,
+        "tp1": 18.717,
+        "tp2": 18.093,
+        "tp3": 17.261,
+        "sl": 19.987,
+        "confidence": 60.0,
+        "risk_reward_ratio": 5.22,
+        "potential_upside": 11.7,
+        "signal_strength": 3.0,
+        "patterns": [],
+        "timeframe_analysis": {
+          "5m_momentum": 0.004161,
+          "15m_momentum": -0.013873,
+          "1h_momentum": 0.003182,
+          "1h_trend": 0.069069,
+          "4h_trend": 0.159156
+        },
+        "technical_analysis": {
+          "rsi": 67.17,
+          "stoch_k": 79.6,
+          "macd": 0.4605282,
+          "bb_position": 0.82,
+          "volume_ratio": 1.73,
+          "tp3_distance_in_atr5": 1.41
+        },
+        "timestamp": "2025-08-08T14:46:49.145439",
+        "conditions_met": {
+          "long_score": 4.0,
+          "short_score": 6.0,
+          "total_conditions": 8.0
+        }
+      }
+    ],
+    "ENS/USDT": [
+      {
+        "symbol": "ENS/USDT",
+        "signal_type": "LONG",
+        "entry_price": 28.083,
+        "tp1": 29.019,
+        "tp2": 29.721,
+        "tp3": 30.657,
+        "sl": 27.532,
+        "confidence": 55.0,
+        "risk_reward_ratio": 4.67,
+        "potential_upside": 9.17,
+        "signal_strength": 4.0,
+        "patterns": [],
+        "timeframe_analysis": {
+          "5m_momentum": 0.007968,
+          "15m_momentum": -0.000534,
+          "1h_momentum": 0.014046,
+          "1h_trend": 0.028945,
+          "4h_trend": 0.054052
+        },
+        "technical_analysis": {
+          "rsi": 60.69,
+          "stoch_k": 61.09,
+          "macd": 0.23738117,
+          "bb_position": 0.93,
+          "volume_ratio": 2.36,
+          "tp3_distance_in_atr5": 1.26
+        },
+        "timestamp": "2025-08-08T14:47:40.715556",
+        "conditions_met": {
+          "long_score": 5.0,
+          "short_score": 2.0,
           "total_conditions": 8.0
         }
       }
@@ -85,28 +1709,579 @@
   },
   "signals_found": [
     {
-      "timestamp": "2025-08-08T06:54:59.198434",
-      "symbol": "APT/USDT",
+      "timestamp": "2025-08-08T13:14:33.466919",
+      "symbol": "VET/USDT",
       "signal_type": "LONG",
-      "entry_price": 4.5785,
-      "tp1": 4.71621994,
-      "tp2": 4.81950989,
-      "tp3": 4.95722983,
-      "sl": 4.50412105,
-      "confidence": 68.75,
-      "rr_ratio": 5.09,
-      "potential_upside": 8.27,
+      "entry_price": 0.024202,
+      "tp1": 0.02473301,
+      "tp2": 0.02513126,
+      "tp3": 0.02566227,
+      "sl": 0.02386821,
+      "confidence": 50.0,
+      "rr_ratio": 3.37,
+      "potential_upside": 6.03,
+      "signal_strength": 3.0,
+      "patterns": [
+        "bullish_harami",
+        "inside_bar"
+      ]
+    },
+    {
+      "timestamp": "2025-08-08T13:14:48.912313",
+      "symbol": "APE/USDT",
+      "signal_type": "LONG",
+      "entry_price": 0.6166,
+      "tp1": 0.63068026,
+      "tp2": 0.64124045,
+      "tp3": 0.65532071,
+      "sl": 0.60777892,
+      "confidence": 50.0,
+      "rr_ratio": 4.34,
+      "potential_upside": 6.28,
+      "signal_strength": 3.0,
+      "patterns": [
+        "bullish_harami",
+        "tweezer_bottoms",
+        "inside_bar"
+      ]
+    },
+    {
+      "timestamp": "2025-08-08T13:45:16.001724",
+      "symbol": "ENJ/USDT",
+      "signal_type": "LONG",
+      "entry_price": 0.07272,
+      "tp1": 0.0744,
+      "tp2": 0.07567,
+      "tp3": 0.07735,
+      "sl": 0.0716,
+      "confidence": 50.0,
+      "rr_ratio": 3.8,
+      "potential_upside": 6.37,
+      "signal_strength": 3.0,
+      "patterns": [
+        "bullish_harami",
+        "inside_bar"
+      ]
+    },
+    {
+      "timestamp": "2025-08-08T13:50:21.587586",
+      "symbol": "ETH/USDT",
+      "signal_type": "LONG",
+      "entry_price": 3984.54,
+      "tp1": 4078.56,
+      "tp2": 4149.08,
+      "tp3": 4243.11,
+      "sl": 3933.14,
+      "confidence": 55.0,
+      "rr_ratio": 5.03,
+      "potential_upside": 6.49,
+      "signal_strength": 3.0,
+      "patterns": [
+        "bullish_engulfing",
+        "tweezer_bottoms",
+        "outside_bar"
+      ]
+    },
+    {
+      "timestamp": "2025-08-08T13:50:23.518516",
+      "symbol": "SOL/USDT",
+      "signal_type": "LONG",
+      "entry_price": 177.42,
+      "tp1": 181.22,
+      "tp2": 184.08,
+      "tp3": 187.88,
+      "sl": 175.1,
+      "confidence": 55.0,
+      "rr_ratio": 4.51,
+      "potential_upside": 5.9,
       "signal_strength": 4.0,
       "patterns": [
-        "morning_star"
+        "outside_bar"
       ]
+    },
+    {
+      "timestamp": "2025-08-08T13:50:35.692508",
+      "symbol": "ATOM/USDT",
+      "signal_type": "LONG",
+      "entry_price": 4.601,
+      "tp1": 4.714,
+      "tp2": 4.799,
+      "tp3": 4.913,
+      "sl": 4.536,
+      "confidence": 55.0,
+      "rr_ratio": 4.79,
+      "potential_upside": 6.78,
+      "signal_strength": 4.0,
+      "patterns": []
+    },
+    {
+      "timestamp": "2025-08-08T13:50:39.614043",
+      "symbol": "TRX/USDT",
+      "signal_type": "LONG",
+      "entry_price": 0.33824,
+      "tp1": 0.34137,
+      "tp2": 0.34372,
+      "tp3": 0.34685,
+      "sl": 0.3362,
+      "confidence": 50.0,
+      "rr_ratio": 4.02,
+      "potential_upside": 2.55,
+      "signal_strength": 3.0,
+      "patterns": [
+        "spinning_top",
+        "bearish_engulfing",
+        "outside_bar"
+      ]
+    },
+    {
+      "timestamp": "2025-08-08T13:50:42.544557",
+      "symbol": "ICP/USDT",
+      "signal_type": "LONG",
+      "entry_price": 5.407,
+      "tp1": 5.545,
+      "tp2": 5.648,
+      "tp3": 5.785,
+      "sl": 5.319,
+      "confidence": 50.0,
+      "rr_ratio": 4.29,
+      "potential_upside": 6.99,
+      "signal_strength": 4.0,
+      "patterns": []
+    },
+    {
+      "timestamp": "2025-08-08T13:51:14.652027",
+      "symbol": "FET/USDT",
+      "signal_type": "LONG",
+      "entry_price": 0.6978,
+      "tp1": 0.7148,
+      "tp2": 0.7276,
+      "tp3": 0.7446,
+      "sl": 0.687,
+      "confidence": 55.0,
+      "rr_ratio": 4.29,
+      "potential_upside": 6.71,
+      "signal_strength": 3.0,
+      "patterns": [
+        "tweezer_bottoms"
+      ]
+    },
+    {
+      "timestamp": "2025-08-08T13:56:18.769973",
+      "symbol": "DOT/USDT",
+      "signal_type": "SHORT",
+      "entry_price": 3.931,
+      "tp1": 3.818,
+      "tp2": 3.732,
+      "tp3": 3.619,
+      "sl": 3.992,
+      "confidence": 60.0,
+      "rr_ratio": 5.11,
+      "potential_upside": 7.94,
+      "signal_strength": 3.0,
+      "patterns": [
+        "bullish_engulfing"
+      ]
+    },
+    {
+      "timestamp": "2025-08-08T13:56:22.798756",
+      "symbol": "UNI/USDT",
+      "signal_type": "SHORT",
+      "entry_price": 10.688,
+      "tp1": 10.332,
+      "tp2": 10.064,
+      "tp3": 9.708,
+      "sl": 10.874,
+      "confidence": 66.0,
+      "rr_ratio": 5.27,
+      "potential_upside": 9.17,
+      "signal_strength": 3.0,
+      "patterns": [
+        "bullish_engulfing",
+        "outside_bar"
+      ]
+    },
+    {
+      "timestamp": "2025-08-08T13:56:34.927120",
+      "symbol": "HBAR/USDT",
+      "signal_type": "LONG",
+      "entry_price": 0.26445,
+      "tp1": 0.27222,
+      "tp2": 0.27804,
+      "tp3": 0.28581,
+      "sl": 0.25969,
+      "confidence": 50.0,
+      "rr_ratio": 4.4,
+      "potential_upside": 8.08,
+      "signal_strength": 3.0,
+      "patterns": [
+        "bullish_engulfing"
+      ]
+    },
+    {
+      "timestamp": "2025-08-08T13:56:39.256238",
+      "symbol": "FLOW/USDT",
+      "signal_type": "LONG",
+      "entry_price": 0.376,
+      "tp1": 0.385,
+      "tp2": 0.393,
+      "tp3": 0.402,
+      "sl": 0.37,
+      "confidence": 50.0,
+      "rr_ratio": 4.26,
+      "potential_upside": 6.91,
+      "signal_strength": 3.0,
+      "patterns": [
+        "bullish_engulfing",
+        "outside_bar"
+      ]
+    },
+    {
+      "timestamp": "2025-08-08T13:56:49.010570",
+      "symbol": "THETA/USDT",
+      "signal_type": "LONG",
+      "entry_price": 0.8205,
+      "tp1": 0.8418,
+      "tp2": 0.8578,
+      "tp3": 0.8791,
+      "sl": 0.8071,
+      "confidence": 50.0,
+      "rr_ratio": 4.34,
+      "potential_upside": 7.14,
+      "signal_strength": 3.0,
+      "patterns": [
+        "bullish_engulfing",
+        "tweezer_bottoms",
+        "outside_bar"
+      ]
+    },
+    {
+      "timestamp": "2025-08-08T13:56:52.916318",
+      "symbol": "JUP/USDT",
+      "signal_type": "LONG",
+      "entry_price": 0.5033,
+      "tp1": 0.5183,
+      "tp2": 0.5296,
+      "tp3": 0.5446,
+      "sl": 0.4938,
+      "confidence": 50.0,
+      "rr_ratio": 4.3,
+      "potential_upside": 8.21,
+      "signal_strength": 3.0,
+      "patterns": [
+        "tweezer_bottoms"
+      ]
+    },
+    {
+      "timestamp": "2025-08-08T13:56:54.858561",
+      "symbol": "INJ/USDT",
+      "signal_type": "LONG",
+      "entry_price": 14.262,
+      "tp1": 14.722,
+      "tp2": 15.067,
+      "tp3": 15.528,
+      "sl": 13.976,
+      "confidence": 50.0,
+      "rr_ratio": 4.43,
+      "potential_upside": 8.88,
+      "signal_strength": 3.0,
+      "patterns": [
+        "tweezer_bottoms"
+      ]
+    },
+    {
+      "timestamp": "2025-08-08T13:56:56.799594",
+      "symbol": "STRK/USDT",
+      "signal_type": "LONG",
+      "entry_price": 0.1281,
+      "tp1": 0.1324,
+      "tp2": 0.1355,
+      "tp3": 0.1398,
+      "sl": 0.1256,
+      "confidence": 50.0,
+      "rr_ratio": 4.5,
+      "potential_upside": 9.13,
+      "signal_strength": 3.0,
+      "patterns": [
+        "tweezer_bottoms"
+      ]
+    },
+    {
+      "timestamp": "2025-08-08T13:56:58.776643",
+      "symbol": "SEI/USDT",
+      "signal_type": "LONG",
+      "entry_price": 0.3132,
+      "tp1": 0.3223,
+      "tp2": 0.3292,
+      "tp3": 0.3384,
+      "sl": 0.3075,
+      "confidence": 55.0,
+      "rr_ratio": 4.34,
+      "potential_upside": 8.05,
+      "signal_strength": 3.0,
+      "patterns": [
+        "tweezer_bottoms"
+      ]
+    },
+    {
+      "timestamp": "2025-08-08T13:56:59.745348",
+      "symbol": "PYTH/USDT",
+      "signal_type": "LONG",
+      "entry_price": 0.12356,
+      "tp1": 0.1274,
+      "tp2": 0.13027,
+      "tp3": 0.13411,
+      "sl": 0.12123,
+      "confidence": 50.0,
+      "rr_ratio": 4.34,
+      "potential_upside": 8.54,
+      "signal_strength": 3.0,
+      "patterns": [
+        "tweezer_bottoms"
+      ]
+    },
+    {
+      "timestamp": "2025-08-08T13:57:05.616787",
+      "symbol": "OP/USDT",
+      "signal_type": "SHORT",
+      "entry_price": 0.7457,
+      "tp1": 0.7179,
+      "tp2": 0.697,
+      "tp3": 0.6692,
+      "sl": 0.7601,
+      "confidence": 66.0,
+      "rr_ratio": 5.28,
+      "potential_upside": 10.26,
+      "signal_strength": 3.0,
+      "patterns": []
+    },
+    {
+      "timestamp": "2025-08-08T13:57:06.603695",
+      "symbol": "ARB/USDT",
+      "signal_type": "LONG",
+      "entry_price": 0.4267,
+      "tp1": 0.4404,
+      "tp2": 0.4507,
+      "tp3": 0.4644,
+      "sl": 0.4186,
+      "confidence": 50.0,
+      "rr_ratio": 4.6,
+      "potential_upside": 8.84,
+      "signal_strength": 3.0,
+      "patterns": [
+        "tweezer_bottoms"
+      ]
+    },
+    {
+      "timestamp": "2025-08-08T14:14:24.604057",
+      "symbol": "ETC/USDT",
+      "signal_type": "LONG",
+      "entry_price": 22.306,
+      "tp1": 22.998,
+      "tp2": 23.516,
+      "tp3": 24.208,
+      "sl": 21.919,
+      "confidence": 55.0,
+      "rr_ratio": 4.91,
+      "potential_upside": 8.53,
+      "signal_strength": 4.0,
+      "patterns": [
+        "doji"
+      ]
+    },
+    {
+      "timestamp": "2025-08-08T14:28:58.223462",
+      "symbol": "MANA/USDT",
+      "signal_type": "LONG",
+      "entry_price": 0.3007,
+      "tp1": 0.3085,
+      "tp2": 0.3143,
+      "tp3": 0.3221,
+      "sl": 0.2958,
+      "confidence": 50.0,
+      "rr_ratio": 4.28,
+      "potential_upside": 7.12,
+      "signal_strength": 4.0,
+      "patterns": []
+    },
+    {
+      "timestamp": "2025-08-08T14:28:59.654147",
+      "symbol": "AXS/USDT",
+      "signal_type": "LONG",
+      "entry_price": 2.43,
+      "tp1": 2.492,
+      "tp2": 2.538,
+      "tp3": 2.6,
+      "sl": 2.391,
+      "confidence": 55.0,
+      "rr_ratio": 4.35,
+      "potential_upside": 7.0,
+      "signal_strength": 4.0,
+      "patterns": []
+    },
+    {
+      "timestamp": "2025-08-08T14:29:03.581353",
+      "symbol": "CHZ/USDT",
+      "signal_type": "LONG",
+      "entry_price": 0.04164,
+      "tp1": 0.04255,
+      "tp2": 0.04324,
+      "tp3": 0.04415,
+      "sl": 0.04105,
+      "confidence": 55.0,
+      "rr_ratio": 3.64,
+      "potential_upside": 6.03,
+      "signal_strength": 4.0,
+      "patterns": [
+        "spinning_top"
+      ]
+    },
+    {
+      "timestamp": "2025-08-08T14:46:49.145439",
+      "symbol": "LINK/USDT",
+      "signal_type": "SHORT",
+      "entry_price": 19.549,
+      "tp1": 18.717,
+      "tp2": 18.093,
+      "tp3": 17.261,
+      "sl": 19.987,
+      "confidence": 60.0,
+      "rr_ratio": 5.22,
+      "potential_upside": 11.7,
+      "signal_strength": 3.0,
+      "patterns": []
+    },
+    {
+      "timestamp": "2025-08-08T14:47:40.715556",
+      "symbol": "ENS/USDT",
+      "signal_type": "LONG",
+      "entry_price": 28.083,
+      "tp1": 29.019,
+      "tp2": 29.721,
+      "tp3": 30.657,
+      "sl": 27.532,
+      "confidence": 55.0,
+      "rr_ratio": 4.67,
+      "potential_upside": 9.17,
+      "signal_strength": 4.0,
+      "patterns": []
     }
   ],
   "analysis_stats": {
-    "total_analyzed": 2253.0,
-    "signals_generated": 1.0,
-    "start_time": "2025-08-08T06:31:46.008732"
+    "total_analyzed": 6344.0,
+    "signals_generated": 27.0,
+    "start_time": "2025-08-08T12:10:00.475451"
   },
-  "trade_closures_log": [],
-  "saved_at": "2025-08-08T07:32:56.311530"
+  "trade_closures_log": [
+    {
+      "symbol": "HBAR/USDT",
+      "signal_type": "LONG",
+      "entry_time": "2025-08-08T13:56:34.927120",
+      "entry_price": 0.26445,
+      "exit_time": "2025-08-08T15:05:59.735269",
+      "exit_price": 0.25969,
+      "level": "SL",
+      "price_diff": -0.004760000000000042
+    },
+    {
+      "symbol": "JUP/USDT",
+      "signal_type": "LONG",
+      "entry_time": "2025-08-08T13:56:52.916318",
+      "entry_price": 0.5033,
+      "exit_time": "2025-08-08T15:06:00.421913",
+      "exit_price": 0.4938,
+      "level": "SL",
+      "price_diff": -0.009499999999999953
+    },
+    {
+      "symbol": "SEI/USDT",
+      "signal_type": "LONG",
+      "entry_time": "2025-08-08T13:56:58.776643",
+      "entry_price": 0.3132,
+      "exit_time": "2025-08-08T15:06:01.106841",
+      "exit_price": 0.3075,
+      "level": "SL",
+      "price_diff": -0.005699999999999983
+    },
+    {
+      "symbol": "INJ/USDT",
+      "signal_type": "LONG",
+      "entry_time": "2025-08-08T13:56:54.858561",
+      "entry_price": 14.262,
+      "exit_time": "2025-08-08T15:07:19.154396",
+      "exit_price": 13.976,
+      "level": "SL",
+      "price_diff": -0.2859999999999996
+    },
+    {
+      "symbol": "PYTH/USDT",
+      "signal_type": "LONG",
+      "entry_time": "2025-08-08T13:56:59.745348",
+      "entry_price": 0.12356,
+      "exit_time": "2025-08-08T15:08:37.131297",
+      "exit_price": 0.12123,
+      "level": "SL",
+      "price_diff": -0.0023299999999999987
+    },
+    {
+      "symbol": "THETA/USDT",
+      "signal_type": "LONG",
+      "entry_time": "2025-08-08T13:56:49.010570",
+      "entry_price": 0.8205,
+      "exit_time": "2025-08-08T15:09:54.370995",
+      "exit_price": 0.8071,
+      "level": "SL",
+      "price_diff": -0.013399999999999967
+    },
+    {
+      "symbol": "ETC/USDT",
+      "signal_type": "LONG",
+      "entry_time": "2025-08-08T14:14:24.604057",
+      "entry_price": 22.306,
+      "exit_time": "2025-08-08T15:09:55.288416",
+      "exit_price": 21.919,
+      "level": "SL",
+      "price_diff": -0.38700000000000045
+    },
+    {
+      "symbol": "AXS/USDT",
+      "signal_type": "LONG",
+      "entry_time": "2025-08-08T14:28:59.654147",
+      "entry_price": 2.43,
+      "exit_time": "2025-08-08T15:09:55.749154",
+      "exit_price": 2.391,
+      "level": "SL",
+      "price_diff": -0.039000000000000146
+    },
+    {
+      "symbol": "SOL/USDT",
+      "signal_type": "LONG",
+      "entry_time": "2025-08-08T13:50:23.518516",
+      "entry_price": 177.42,
+      "exit_time": "2025-08-08T15:12:00.743564",
+      "exit_price": 175.1,
+      "level": "SL",
+      "price_diff": -2.319999999999993
+    },
+    {
+      "symbol": "FET/USDT",
+      "signal_type": "LONG",
+      "entry_time": "2025-08-08T13:51:14.652027",
+      "entry_price": 0.6978,
+      "exit_time": "2025-08-08T15:12:01.653404",
+      "exit_price": 0.687,
+      "level": "SL",
+      "price_diff": -0.01079999999999992
+    },
+    {
+      "symbol": "FLOW/USDT",
+      "signal_type": "LONG",
+      "entry_time": "2025-08-08T13:56:39.256238",
+      "entry_price": 0.376,
+      "exit_time": "2025-08-08T15:12:02.344947",
+      "exit_price": 0.37,
+      "level": "SL",
+      "price_diff": -0.006000000000000005
+    }
+  ],
+  "saved_at": "2025-08-08T15:13:11.514163"
 }

@@ -78,9 +78,16 @@ class FuturesCryptoTradingBot:
         # Технические параметры
         self.risk_params = {
             'min_confidence_threshold': 45,  # Либеральные параметры
-            'min_volume_filter': 300000,
+            'min_volume_filter': 250000,
             'min_rr_ratio': 1.2,
-            'use_short_signals': True
+            'use_short_signals': True,
+            'atr_fallback_pct': 0.01,
+            'sl_mult': 1.5,
+            'sl_scale': 0.9,
+            'tp1_mult': 2.0,
+            'tp2_mult': 3.5,
+            'tp3_mult': 5.5,
+            'min_level_dist_pct': 0.001,
         }
         # Загрузка состояния при инициализации
         self.load_state()
@@ -158,7 +165,7 @@ class FuturesCryptoTradingBot:
             logger.info("✅ Создан новый файл состояния по умолчанию")
         except Exception as e:
             logger.error(f"❌ Ошибка создания файла состояния: {e}")
-
+            
     def convert_to_serializable(self, obj):
         """Конвертация объекта в сериализуемый формат"""
         if isinstance(obj, dict):
@@ -597,130 +604,259 @@ class FuturesCryptoTradingBot:
         return analysis_results
 
     def calculate_dynamic_levels(self, symbol, data_dict, signal_type):
-        """Расчет динамических TP и SL на основе потенциала роста и индикаторов"""
+        """
+        Расчет динамических TP/SL уровней на основе ATR и контекста рынка
+        """
         if not data_dict or '1h' not in data_dict:
             logger.debug(f"[{symbol}] calculate_dynamic_levels: Нет данных 1h")
-            return None # Возвращаем None, если нет данных
+            return None
         df_1h = data_dict['1h']
         if df_1h is None or len(df_1h) < 20:
-            logger.debug(f"[{symbol}] calculate_dynamic_levels: Недостаточно данных ({len(df_1h) if df_1h is not None else 0})")
-            return None # Возвращаем None, если недостаточно данных
+            logger.debug(f"[{symbol}] calculate_dynamic_levels: Недостаточно данных")
+            return None
+
         try:
             current_price = float(df_1h['close'].iloc[-1])
-            # --- ИСПРАВЛЕНИЕ: Более надежная проверка ATR ---
-            # Сначала пытаемся получить ATR из данных
-            atr = None
-            if 'atr' in df_1h.columns:
-                atr_raw = df_1h['atr'].iloc[-1]
-                if not pd.isna(atr_raw) and atr_raw > 0:
-                    atr = float(atr_raw)
-            # Если ATR не удалось получить или он некорректный, используем fallback
-            if atr is None or atr <= 0:
-                # Используем меньший процент от цены для более точного расчета по умолчанию
-                atr = current_price * 0.01 # 1% вместо 2%
-                logger.debug(f"[{symbol}] calculate_dynamic_levels: ATR не доступен или некорректен. Используется fallback: {atr:.8f}")
-            logger.debug(f"[{symbol}] Входные данные для расчета TP/SL: Цена={current_price:.8f}, ATR={atr:.8f}")
-            # --- Расчет индикаторов ---
-            rsi = float(df_1h['rsi'].iloc[-1]) if not pd.isna(df_1h['rsi'].iloc[-1]) else 50
-            bb_position = float(df_1h['bb_position'].iloc[-1]) if not pd.isna(df_1h['bb_position'].iloc[-1]) else 0.5
-            momentum_1h = float(df_1h['roc_7'].iloc[-1]) if not pd.isna(df_1h['roc_7'].iloc[-1]) else 0
-            volume_ratio = float(df_1h['volume_ratio'].iloc[-1]) if not pd.isna(df_1h['volume_ratio'].iloc[-1]) else 1
-            logger.debug(f"[{symbol}] Индикаторы: RSI={rsi:.2f}, BB_Pos={bb_position:.2f}, Momentum_1h={momentum_1h:.6f}")
-            trend_strength_4h = 0
-            trend_strength_1h = 0
+            atr = self.get_effective_atr(df_1h, current_price, self.risk_params.get('atr_fallback_pct', 0.01))
+
+            # Индикаторы контекста
+            rsi = float(df_1h['rsi'].iloc[-1]) if pd.notna(df_1h['rsi'].iloc[-1]) else 50
+            bb_position = float(df_1h['bb_position'].iloc[-1]) if pd.notna(df_1h['bb_position'].iloc[-1]) else 0.5
+            momentum_1h = float(df_1h['roc_7'].iloc[-1]) if pd.notna(df_1h['roc_7'].iloc[-1]) else 0.0
+            volume_ratio = float(df_1h['volume_ratio'].iloc[-1]) if pd.notna(df_1h['volume_ratio'].iloc[-1]) else 1.0
+
+            # Тренд 1h и 4h
+            trend_strength_1h, trend_strength_4h = 0.0, 0.0
+            if len(df_1h) > 20:
+                trend_strength_1h = (df_1h['close'].iloc[-1] - df_1h['close'].iloc[-20]) / (df_1h['close'].iloc[-20] + 1e-12)
             if '4h' in data_dict and data_dict['4h'] is not None and len(data_dict['4h']) > 20:
                 df_4h = data_dict['4h']
-                trend_4h_raw = (df_4h['close'].iloc[-1] - df_4h['close'].iloc[-20]) / df_4h['close'].iloc[-20]
-                trend_strength_4h = float(trend_4h_raw) if not pd.isna(trend_4h_raw) else 0
-            # Исправление: используем df_1h из внешнего scope
-            if len(df_1h) > 20: 
-                trend_1h_raw = (df_1h['close'].iloc[-1] - df_1h['close'].iloc[-20]) / df_1h['close'].iloc[-20]
-                trend_strength_1h = float(trend_1h_raw) if not pd.isna(trend_1h_raw) else 0
-            logger.debug(f"[{symbol}] Тренды: 1h={trend_strength_1h:.6f}, 4h={trend_strength_4h:.6f}, Volume_Ratio={volume_ratio:.2f}")
-            # --- Расчет множителя потенциала ---
-            potential_multiplier = 1.0
-            if signal_type == 'LONG':
-                rsi_factor = max(0.7, min(2.0, (70 - rsi) / 20)) # Минимум 0.7
-                bb_factor = max(0.7, min(2.0, (1.0 - bb_position) * 2.0)) # Минимум 0.7
-                momentum_factor = max(0.7, min(2.0, 1.0 + momentum_1h * 15)) # Минимум 0.7
-                trend_factor = max(0.7, min(2.0, 1.0 + (trend_strength_4h + trend_strength_1h) * 8)) # Минимум 0.7
-                volume_factor = max(0.8, min(1.5, volume_ratio * 0.4 + 0.7))
-                potential_multiplier = (rsi_factor + bb_factor + momentum_factor + trend_factor + volume_factor) / 5
-                # --- ИСПРАВЛЕНИЕ: Ограничение множителя ---
-                potential_multiplier = max(0.7, min(2.5, potential_multiplier)) # Ограничиваем от 0.7 до 2.5
-                logger.debug(f"[{symbol}] LONG Факторы: RSI={rsi_factor:.2f}, BB={bb_factor:.2f}, Momentum={momentum_factor:.2f}, Trend={trend_factor:.2f}, Volume={volume_factor:.2f}")
-                logger.debug(f"[{symbol}] LONG final potential_multiplier = {potential_multiplier:.4f}")
-            else: # SHORT
-                rsi_factor = max(0.7, min(2.0, (rsi - 30) / 20)) # Минимум 0.7
-                bb_factor = max(0.7, min(2.0, bb_position * 2.0)) # Минимум 0.7
-                momentum_factor = max(0.7, min(2.0, 1.0 - momentum_1h * 15)) # Минимум 0.7
-                trend_factor = max(0.7, min(2.0, 1.0 - (trend_strength_4h + trend_strength_1h) * 8)) # Минимум 0.7
-                volume_factor = max(0.8, min(1.5, volume_ratio * 0.4 + 0.7))
-                potential_multiplier = (rsi_factor + bb_factor + momentum_factor + trend_factor + volume_factor) / 5
-                # --- ИСПРАВЛЕНИЕ: Ограничение множителя ---
-                potential_multiplier = max(0.7, min(2.5, potential_multiplier)) # Ограничиваем от 0.7 до 2.5
-                logger.debug(f"[{symbol}] SHORT Факторы: RSI={rsi_factor:.2f}, BB={bb_factor:.2f}, Momentum={momentum_factor:.2f}, Trend={trend_factor:.2f}, Volume={volume_factor:.2f}")
-                logger.debug(f"[{symbol}] SHORT final potential_multiplier = {potential_multiplier:.4f}")
-            # --- ИСПРАВЛЕНИЕ: Увеличенные базовые расстояния ---
-            base_sl_distance = atr * 1.5   # Увеличено с 1.2
-            base_tp1_distance = atr * 2.0  # Увеличено с 1.8
-            base_tp2_distance = atr * 3.5  # Увеличено с 3.0
-            base_tp3_distance = atr * 5.5  # Увеличено с 4.5/5.0
-            logger.debug(f"[{symbol}] Базовые расстояния: SL={base_sl_distance:.8f}, TP1={base_tp1_distance:.8f}, TP2={base_tp2_distance:.8f}, TP3={base_tp3_distance:.8f}")
-            # --- Расчет TP/SL без коррекции по уровням поддержки/сопротивления ---
-            if signal_type == 'LONG':
-                sl = current_price - (base_sl_distance * 0.9)
-                tp1 = current_price + (base_tp1_distance * potential_multiplier)
-                tp2 = current_price + (base_tp2_distance * potential_multiplier)
-                tp3 = current_price + (base_tp3_distance * potential_multiplier)
-                logger.debug(f"[{symbol}] LONG финальные уровни: SL={sl:.8f}, TP1={tp1:.8f}, TP2={tp2:.8f}, TP3={tp3:.8f}")
-            else: # SHORT
-                sl = current_price + (base_sl_distance * 0.9)
-                tp1 = current_price - (base_tp1_distance * potential_multiplier)
-                tp2 = current_price - (base_tp2_distance * potential_multiplier)
-                tp3 = current_price - (base_tp3_distance * potential_multiplier)
-                logger.debug(f"[{symbol}] SHORT финальные уровни: SL={sl:.8f}, TP1={tp1:.8f}, TP2={tp2:.8f}, TP3={tp3:.8f}")
-            risk_reward_ratio = abs(tp3 - current_price) / (abs(current_price - sl) + 0.0001)
-            potential_upside = ((tp3 - current_price) / current_price * 100) if signal_type == 'LONG' else ((current_price - tp3) / current_price * 100)
-            logger.debug(f"[{symbol}] Финальные расчеты: RR={risk_reward_ratio:.2f}, Потенциал={potential_upside:.2f}%")
-            # ВСЕГДА возвращаем рассчитанные уровни
-            return round(float(sl), 8), round(float(tp1), 8), round(float(tp2), 8), round(float(tp3), 8)
-        except Exception as e:
-            logger.error(f"Ошибка расчета динамических уровней для {symbol}: {e}")
-            return None # Возвращаем None в случае ошибки
+                trend_strength_4h = (df_4h['close'].iloc[-1] - df_4h['close'].iloc[-20]) / (df_4h['close'].iloc[-20] + 1e-12)
 
+            # Контекстные множители
+            if signal_type.upper() == 'LONG':
+                rsi_factor = max(0.7, min(2.0, (70 - rsi) / 20))
+                bb_factor = max(0.7, min(2.0, (1.0 - bb_position) * 2.0))
+                momentum_factor = max(0.7, min(2.0, 1.0 + momentum_1h * 15.0))
+                trend_factor = max(0.7, min(2.0, 1.0 + (trend_strength_1h + trend_strength_4h) * 8.0))
+            else:
+                rsi_factor = max(0.7, min(2.0, (rsi - 30) / 20))
+                bb_factor = max(0.7, min(2.0, bb_position * 2.0))
+                momentum_factor = max(0.7, min(2.0, 1.0 - momentum_1h * 15.0))
+                trend_factor = max(0.7, min(2.0, 1.0 - (trend_strength_1h + trend_strength_4h) * 8.0))
+
+            volume_factor = max(0.8, min(1.5, volume_ratio * 0.4 + 0.7))
+            potential_multiplier = max(0.7, min(2.5, (rsi_factor + bb_factor + momentum_factor + trend_factor + volume_factor) / 5.0))
+
+            # Множители из risk_params
+            sl_mult = float(self.risk_params.get('sl_mult', 1.5))
+            sl_scale = float(self.risk_params.get('sl_scale', 0.9))
+            tp1_mult = float(self.risk_params.get('tp1_mult', 2.0))
+            tp2_mult = float(self.risk_params.get('tp2_mult', 3.5))
+            tp3_mult = float(self.risk_params.get('tp3_mult', 5.5))
+
+            # Расчёт уровней
+            base_sl = atr * sl_mult * sl_scale
+            base_tp1 = atr * tp1_mult * potential_multiplier
+            base_tp2 = atr * tp2_mult * potential_multiplier
+            base_tp3 = atr * tp3_mult * potential_multiplier
+
+            if signal_type.upper() == 'LONG':
+                sl  = current_price - base_sl
+                tp1 = current_price + base_tp1
+                tp2 = current_price + base_tp2
+                tp3 = current_price + base_tp3
+            else:
+                sl  = current_price + base_sl
+                tp1 = current_price - base_tp1
+                tp2 = current_price - base_tp2
+                tp3 = current_price - base_tp3
+
+            # Минимальная дистанция
+            min_dist = current_price * float(self.risk_params.get('min_level_dist_pct', 0.001))
+            if signal_type.upper() == 'LONG':
+                sl  = min(sl, current_price - min_dist)
+                tp1 = max(tp1, current_price + min_dist)
+                tp2 = max(tp2, tp1 + min_dist)
+                tp3 = max(tp3, tp2 + min_dist)
+            else:
+                sl  = max(sl, current_price + min_dist)
+                tp1 = min(tp1, current_price - min_dist)
+                tp2 = min(tp2, tp1 - min_dist)
+                tp3 = min(tp3, tp2 - min_dist)
+
+            # Округление
+            sl  = self.round_price(symbol, sl)
+            tp1 = self.round_price(symbol, tp1)
+            tp2 = self.round_price(symbol, tp2)
+            tp3 = self.round_price(symbol, tp3)
+
+            logger.debug(f"[{symbol}] TP/SL: SL={sl:.8f}, TP1={tp1:.8f}, TP2={tp2:.8f}, TP3={tp3:.8f}")
+            return float(sl), float(tp1), float(tp2), float(tp3)
+
+        except Exception as e:
+            logger.error(f"Ошибка расчета динамических уровней: {e}")
+            return None
+
+        
     def calculate_basic_levels(self, symbol, data_dict, signal_type):
-        """Базовые уровни на случай ошибок"""
+        """
+        Базовые TP/SL уровни на случай недоступности динамических данных.
+        Учитывает fallback ATR, настройки risk_params и округление по бирже.
+        """
         try:
-            # --- ИСПРАВЛЕНИЕ: Получаем реальную цену из данных ---
+            # --- Получение актуальной цены ---
             if not data_dict or '1h' not in data_dict or data_dict['1h'] is None or len(data_dict['1h']) == 0:
-                logger.warning(f"[{symbol}] calculate_basic_levels: Нет данных 1h для получения цены. Используется цена по умолчанию.")
-                current_price = 1000.0 # Значение по умолчанию для теста
+                logger.warning(f"[{symbol}] calculate_basic_levels: Нет данных 1h. Используется fallback цена.")
+                current_price = 1000.0
+                df_1h = None
             else:
-                current_price = float(data_dict['1h']['close'].iloc[-1])
-            # --- ИСПРАВЛЕНИЕ: Используем меньший ATR по умолчанию ---
-            atr = current_price * 0.01 # 1% от цены вместо 1.5%
-            logger.debug(f"[{symbol}] calculate_basic_levels: Цена={current_price:.8f}, ATR (по умолчанию)={atr:.8f}")
-            if signal_type == 'LONG':
-                sl = current_price - atr * 1.0 # Было 1.2
-                tp1 = current_price + atr * 1.5 # Было 1.8
-                tp2 = current_price + atr * 2.5 # Было 3.0
-                tp3 = current_price + atr * 3.8 # Было 4.5
-            else:
-                sl = current_price + atr * 1.0 # Было 1.2
-                tp1 = current_price - atr * 1.5 # Было 1.8
-                tp2 = current_price - atr * 2.5 # Было 3.0
-                tp3 = current_price - atr * 3.8 # Было 4.5
+                df_1h = data_dict['1h']
+                current_price = float(df_1h['close'].iloc[-1])
+
+            # --- Получение ATR ---
+            atr = self.get_effective_atr(df_1h, current_price, self.risk_params.get('atr_fallback_pct', 0.01))
+            logger.debug(f"[{symbol}] calculate_basic_levels: Цена={current_price:.8f}, ATR={atr:.8f}")
+
+            # --- Извлечение параметров из risk_params ---
+            sl_mult = float(self.risk_params.get('sl_mult', 1.5))
+            sl_scale = float(self.risk_params.get('sl_scale', 0.9))
+            tp1_mult = float(self.risk_params.get('tp1_mult', 2.0))
+            tp2_mult = float(self.risk_params.get('tp2_mult', 3.5))
+            tp3_mult = float(self.risk_params.get('tp3_mult', 5.5))
+            min_dist_pct = float(self.risk_params.get('min_level_dist_pct', 0.001))
+            min_dist = current_price * min_dist_pct
+
+            # --- Расчёт базовых расстояний ---
+            sl_distance  = atr * sl_mult * sl_scale
+            tp1_distance = atr * tp1_mult
+            tp2_distance = atr * tp2_mult
+            tp3_distance = atr * tp3_mult
+
+            # --- Построение уровней по направлению ---
+            if signal_type.upper() == 'LONG':
+                sl  = current_price - sl_distance
+                tp1 = current_price + tp1_distance
+                tp2 = current_price + tp2_distance
+                tp3 = current_price + tp3_distance
+
+                sl  = min(sl, current_price - min_dist)
+                tp1 = max(tp1, current_price + min_dist)
+                tp2 = max(tp2, tp1 + min_dist)
+                tp3 = max(tp3, tp2 + min_dist)
+
+            else:  # SHORT
+                sl  = current_price + sl_distance
+                tp1 = current_price - tp1_distance
+                tp2 = current_price - tp2_distance
+                tp3 = current_price - tp3_distance
+
+                sl  = max(sl, current_price + min_dist)
+                tp1 = min(tp1, current_price - min_dist)
+                tp2 = min(tp2, tp1 - min_dist)
+                tp3 = min(tp3, tp2 - min_dist)
+
+            # --- Округление по шагу цены ---
+            sl  = self.round_price(symbol, sl)
+            tp1 = self.round_price(symbol, tp1)
+            tp2 = self.round_price(symbol, tp2)
+            tp3 = self.round_price(symbol, tp3)
+
             logger.debug(f"[{symbol}] calculate_basic_levels: SL={sl:.8f}, TP1={tp1:.8f}, TP2={tp2:.8f}, TP3={tp3:.8f}")
-            return round(float(sl), 8), round(float(tp1), 8), round(float(tp2), 8), round(float(tp3), 8)
+            return float(sl), float(tp1), float(tp2), float(tp3)
+
         except Exception as e:
             logger.error(f"Ошибка базовых уровней для {symbol}: {e}")
-            # Абсолютный fallback
+            # --- Жесткий fallback ---
             current_price = 1000.0
-            if signal_type == 'LONG':
+            if signal_type.upper() == 'LONG':
                 return 990.0, 1005.0, 1015.0, 1025.0
             else:
                 return 1010.0, 995.0, 985.0, 975.0
+
+
+        
+    def has_trend_reversed(self, symbol, trade):
+        """
+        Возвращает (bool, reason) — произошёл ли разворот тренда против сделки.
+        Логика: на выбранном ТФ последние N баров подтверждают противоположный тренд:
+        - EMA21 против EMA50
+        - price_trend_20 против направления сделки с порогом
+        - (опц.) MACD-гистограмма подтверждает
+        - (опц.) RSI подтверждает
+        """
+        try:
+            if not bool(self.risk_params.get('trend_guard', True)):
+                return (False, "")
+
+            # Минимальный срок "созревания" сделки перед проверкой
+            min_minutes = int(self.risk_params.get('trend_guard_min_minutes', 15))
+            try:
+                entry_time = pd.to_datetime(trade.get('timestamp'))
+                if entry_time is not None and (datetime.now() - entry_time).total_seconds() < min_minutes * 60:
+                    return (False, "")
+            except Exception:
+                pass
+
+            tf = str(self.risk_params.get('trend_guard_tf', '1h'))
+            confirm_bars = int(self.risk_params.get('trend_guard_confirm_bars', 2))
+            slope_thr = float(self.risk_params.get('trend_guard_slope_thr', 0.005))
+            use_macd = bool(self.risk_params.get('trend_guard_use_macd', True))
+            use_rsi = bool(self.risk_params.get('trend_guard_use_rsi', False))
+
+            data_dict = self.fetch_ohlcv_multitimeframe(symbol)
+            if not data_dict or tf not in data_dict or data_dict[tf] is None:
+                return (False, "")
+            df = data_dict[tf]
+            df = self.calculate_advanced_indicators(df, tf)
+            if df is None or len(df) < max(50, confirm_bars + 25):
+                return (False, "")
+
+            # Берём хвост данных
+            tail = df.tail(max(confirm_bars, 2)).copy()
+
+            # Гарантия нужных колонок
+            needed = ['ema_21', 'ema_50', 'price_trend_20']
+            for col in needed:
+                if col not in tail.columns:
+                    return (False, "")
+
+            direction = trade.get('signal_type', 'LONG').upper()
+
+            def bar_confirms_reversal(row):
+                ema_flip_long = row['ema_21'] < row['ema_50']     # против LONG
+                ema_flip_short = row['ema_21'] > row['ema_50']    # против SHORT
+                slope_down = row['price_trend_20'] < -slope_thr
+                slope_up = row['price_trend_20'] > slope_thr
+
+                conds = []
+                if direction == 'LONG':
+                    conds.append(ema_flip_long)
+                    conds.append(slope_down)
+                else:  # SHORT
+                    conds.append(ema_flip_short)
+                    conds.append(slope_up)
+
+                if use_macd and 'macd_histogram' in tail.columns:
+                    macd_ok = row['macd_histogram'] < 0 if direction == 'LONG' else row['macd_histogram'] > 0
+                    conds.append(macd_ok)
+
+                if use_rsi and 'rsi' in tail.columns:
+                    rsi_ok = row['rsi'] < 45 if direction == 'LONG' else row['rsi'] > 55
+                    conds.append(rsi_ok)
+
+                # Минимум два ключевых подтверждения
+                return sum(1 for c in conds if bool(c)) >= 2
+
+            confirmations = sum(1 for _, r in tail.iterrows() if bar_confirms_reversal(r))
+            if confirmations >= confirm_bars:
+                reason = (f"trend_guard: tf={tf}, confirm_bars={confirm_bars}, "
+                        f"slope_thr={slope_thr}, confirmations={confirmations}/{confirm_bars}")
+                return (True, reason)
+            return (False, "")
+        except Exception as e:
+            logger.error(f"Ошибка has_trend_reversed({symbol}): {e}")
+            return (False, "")
 
     # Улучшенная версия метода generate_signal
     def generate_signal(self, symbol, data_dict, multitimeframe_analysis=None):
@@ -737,8 +873,8 @@ class FuturesCryptoTradingBot:
             # --- Настройки рисков из risk_params ---
             min_conf = float(self.risk_params.get('min_confidence_threshold', 60))
             min_rr   = float(self.risk_params.get('min_rr_ratio', 1.5))
-            min_vol  = float(self.risk_params.get('min_volume_filter', 300000))
-            min_strength = int(self.risk_params.get('min_signal_strength', 4))  # По умолчанию 4
+            min_vol  = float(self.risk_params.get('min_volume_filter', 250000))
+            min_strength = int(self.risk_params.get('min_signal_strength', 3))  # По умолчанию 4
             allow_shorts = bool(self.risk_params.get('use_short_signals', True))
 
             # --- Фильтр по объёму (1h) ---
@@ -879,6 +1015,17 @@ class FuturesCryptoTradingBot:
                 p in patterns for p in ['bearish_engulfing', 'shooting_star', 'evening_star', 'three_black_crows', 'bearish_harami', 'tweezer_tops']
             ):
                 confidence_score *= 0.8
+            # --- Понижаем confidence, если паттерн против направления ---
+            conflicting_patterns = {
+                'LONG': ['bearish_engulfing', 'evening_star', 'shooting_star', 'three_black_crows', 'bearish_harami', 'tweezer_tops'],
+                'SHORT': ['bullish_engulfing', 'morning_star', 'hammer', 'three_white_soldiers', 'bullish_harami', 'tweezer_bottoms']
+            }
+
+            for pattern in patterns:
+                if pattern in conflicting_patterns.get(signal_type, []):
+                    confidence_score *= 0.85  # множитель можно настраивать
+                    logger.debug(f"⚠️ [{symbol}] Паттерн {pattern} против {signal_type} — confidence понижен")
+
 
             # --- Финальный гейт после всех корректировок ---
             confidence_score = max(0.0, min(100.0, confidence_score))
@@ -963,6 +1110,48 @@ class FuturesCryptoTradingBot:
         except Exception as e:
             logger.error(f"Ошибка получения цены фьючерса для {symbol}: {e}")
             return None
+        
+    def get_effective_atr(self, df, price, fallback_pct=0.01):
+        """
+        Возвращает ATR из df, если он корректен, иначе fallback = price * fallback_pct.
+        """
+        try:
+            if df is not None and 'atr' in df.columns:
+                atr_val = df['atr'].iloc[-1]
+                if pd.notna(atr_val) and atr_val > 0:
+                    return float(atr_val)
+        except Exception:
+            pass
+        return float(price) * float(fallback_pct)
+
+
+    def round_price(self, symbol, price):
+        """
+        Округление цены к шагу цены (tickSize), если доступен, иначе по precision.price.
+        """
+        try:
+            market = self.exchange.market(symbol)
+            # Пытаемся достать tickSize из info.filters (Binance)
+            tick_size = None
+            info = market.get('info', {})
+            if isinstance(info, dict):
+                filters = info.get('filters') or []
+                for f in filters:
+                    if f.get('filterType') == 'PRICE_FILTER':
+                        # Некоторые биржи дают tickSize как строку
+                        ts = f.get('tickSize')
+                        if ts is not None:
+                            tick_size = float(ts)
+                        break
+
+            if tick_size and tick_size > 0:
+                return float(round(price / tick_size) * tick_size)
+
+            # Фолбэк по precision
+            prec = market.get('precision', {}).get('price', 8)
+            return float(f"{price:.{int(prec)}f}")
+        except Exception:
+            return round(float(price), 8)
 
     def check_active_trades(self):
         """Проверка статуса всех активных сделок"""
